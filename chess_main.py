@@ -7,7 +7,7 @@ import random
 import string
 import math
 import numpy
-#import win_condition
+import win_condition
 import move_check
 import pieces
 
@@ -37,6 +37,7 @@ board_coord = [
     ["a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1"],
 ]
 
+# board_coord_assigned IS NOT USED!
 
 board_coord_assigned = {
     
