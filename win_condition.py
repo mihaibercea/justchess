@@ -9,6 +9,6 @@ def is_black_king_mated():
 
     return False
 
-def is_draw():
+def is_not_draw():
 
-    return False
+    return True

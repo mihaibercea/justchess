@@ -70,7 +70,13 @@ def get_all_white_attacks(current_board):
 
              # To purge this list of duplicates!
 
-    return piece_attacks
+    res = [] 
+    for i in all_attacks: 
+	    if i not in res: 
+		    res.append(i)  
+    
+
+    return res
 
 def get_all_black_attacks(current_board):
 
@@ -90,9 +96,14 @@ def get_all_black_attacks(current_board):
 
                 all_attacks = all_attacks.append(piece_attacks)
 
+    res = [] 
+    for i in all_attacks: 
+	    if i not in res: 
+		    res.append(i)  
+
              # To purge this list of duplicates!
 
-    return piece_attacks
+    return res
 
 def get_white_king_coord(current_board):
 
@@ -126,35 +137,34 @@ def get_black_king_coord(current_board):
 
     return black_king_coord
 
+def is_white_king_attacked(current_board):
 
-# def is_white_king_attacked(current_board):
+    white_king_coord = get_white_king_coord(current_board)
 
-#     white_king_coord = get_white_king_coord(current_board)
+    all_black_attacks = get_all_black_attacks(current_board)
 
-#     all_black_attacks = get_all_black_attacks(current_board)
+    for pos in range(all_black_attacks):
 
-#     for pos in range(all_black_attacks):
-
-#         if pos == white_king_coord:
+        if pos == white_king_coord:
             
-#             return True
+            return True
         
-#         else:
+        else:
 
-#             return False
+            return False
 
-# def is_black_king_attacked(current_board):
+def is_black_king_attacked(current_board):
 
-#     black_king_coord = get_black_king_coord(current_board)
+    black_king_coord = get_black_king_coord(current_board)
 
-#     all_white_attacks = get_all_white_attacks(current_board)
+    all_white_attacks = get_all_white_attacks(current_board)
 
-#     for pos in range(all_white_attacks):
+    for pos in range(all_white_attacks):
 
-#         if pos == black_king_coord:
+        if pos == black_king_coord:
             
-#             return True
+            return True
         
-#         else:
+        else:
 
-#             return False
+            return False

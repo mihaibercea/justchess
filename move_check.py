@@ -1,4 +1,6 @@
 import pieces
+import chess_main
+import board_evaluation
 
 def piece_from_coord(move, board_coord):
 
@@ -40,6 +42,54 @@ def find_current_piece(current_position, current_board):
     current_piece = current_board[i][j].split("_")[1]
 
     return current_piece
+
+def purge_cell(cell):
+    
+    current_cell = cell.split("_")
+
+    current_cell = str(current_cell[0]) + "_" + "00"
+
+    return current_cell
+
+def fill_cell(cell, current_piece):
+
+    current_cell = cell.split("_")
+
+    current_cell = str(current_cell[0]) + "_" + current_piece
+
+    return current_cell
+
+# def find_move_coord(indice):
+
+#     coord = []
+
+#     for i in range(len(board_coord)):
+
+#         for j in range(len(board_coord[i])):
+
+#             if indice == board_coord[i][j]:
+
+#                 coord = [i, j]
+
+#     return coord
+
+def make_move(move, current_board, board_coord):
+ 
+    move = move.split(" ")
+    
+    i = piece_from_coord(move, board_coord)[0]
+    j = piece_from_coord(move, board_coord)[1]
+
+    current_piece = current_board[i][j].split("_")[1]
+
+    current_board[i][j] = purge_cell(current_board[i][j])
+
+    x = piece_to_coord(move, board_coord)[0]
+    y = piece_to_coord(move, board_coord)[1]
+
+    current_board[x][y] = fill_cell(current_board[x][y], current_piece)
+
+    return current_board
 
 def get_current_piece_moves(current_position, current_board):
 
@@ -194,6 +244,22 @@ def is_your_piece(current_position, turn, current_board):
         else:
             return False
 
+def target_not_your_piece(next_position, turn, current_board):
+
+    current_piece = find_current_piece(next_position, current_board)
+    
+    if turn == "white":
+        if current_piece[0] == "w":
+            return False
+        else:
+            return True
+
+    if turn == "black":
+        if current_piece[0] == "b":
+            return False
+        else:
+            return True
+
 def is_move_valid(move, board_coord, turn, current_board):
 
     len_check = 0
@@ -248,16 +314,47 @@ def is_move_valid(move, board_coord, turn, current_board):
 
         current_position = piece_from_coord(move, board_coord)
 
-        if is_your_piece(current_position, turn, current_board) == True:
+        next_position = piece_to_coord(move, board_coord)
+
+        if is_your_piece(current_position, turn, current_board):
                         
             piece_moves = get_current_piece_moves(current_position, current_board)
 
             piece_attacks = get_current_piece_attacks(current_position, current_board)
            
+
             print(piece_moves)
             print(piece_attacks)
 
-            return 3
+            new_board = make_move(move, current_board, board_coord)
+
+            all_black_attacks = board_evaluation.get_all_black_attacks(new_board)
+
+            all_white_attacks = board_evaluation.get_all_white_attacks(new_board)
+
+            white_king_coord = board_evaluation.get_white_king_coord(new_board)
+
+            black_king_coord = board_evaluation.get_black_king_coord(new_board)
+            
+            if turn == "white" and (white_king_coord in all_black_attacks) :
+
+                return 5
+
+            elif turn == "black" and (black_king_coord in all_white_attacks):
+
+                return 6
+
+            elif (next_position not in piece_attacks) or (next_position not in piece_attacks):
+
+                return 7
+
+            elif (next_position in piece_attacks) and target_not_your_piece(next_position, turn, current_board):
+
+                return 8
+
+            else:
+
+                return 3
 
         else:
             
@@ -274,7 +371,9 @@ def input_move_white(player_white, board_coord, turn, current_board):
        
     move = input()
         
-    move = str(move)  
+    move = str(move) 
+
+    move = move.lower()   
 
     check_move = is_move_valid(move, board_coord, turn, current_board)
 
@@ -305,7 +404,14 @@ def input_move_white(player_white, board_coord, turn, current_board):
     elif check_move == 3:
         
         final_move = move
+    
+    else:
+
+        print("Illegal move, please try again\n")
         
+        final_move = input_move_white(player_white, board_coord, turn, current_board)
+
+
     return final_move 
 
 
@@ -320,8 +426,10 @@ def input_move_black(player_black,  board_coord, turn, current_board):
        
     move = input()
         
-    move = str(move)  
+    move = str(move)
 
+    move = move.lower()
+        
     check_move = is_move_valid(move, board_coord, turn, current_board)
 
     if check_move == 0:
@@ -351,6 +459,13 @@ def input_move_black(player_black,  board_coord, turn, current_board):
     elif check_move == 3:
         
         final_move = move
+
+    else:
+
+        print("Illegal move, please try again\n")
+        
+        final_move = input_move_black(player_black, board_coord, turn, current_board)
+
 
     return final_move 
     
