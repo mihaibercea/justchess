@@ -11,9 +11,7 @@ import win_condition
 import move_check
 import pieces
 import board_evaluation
-
-# Add a class for pieces
-# Add a class for each 
+import board_operations
 
    
 board = [
@@ -53,20 +51,6 @@ board_coord_assigned = {
 
     }
 
-# class piece:
-
-#     color = "color"
-#     shape = "shape"
-
-#     def __init__(self, color, shape): 
-#         self.color = color
-#         self.shape = shape
-
-#     def get_avatar(self):
-
-#         avatar = self.color[0] + self.shape[0]
-
-#         return avatar
 
 white_pawn = pieces.piece("white", "pawn")
 white_horse = pieces.piece("white", "horse")
@@ -83,136 +67,9 @@ black_queen = pieces.piece("black", "queen")
 black_king = pieces.piece("black", "king")
 
 
-def purge_cell(cell):
-    
-    current_cell = cell.split("_")
-
-    current_cell = str(current_cell[0]) + "_" + "00"
-
-    return current_cell
-
-# testing purge:
-
-#print(board)
-
-#board[0][0] = purge_cell(board[0][0])
-
-#print(board)
-
-def fill_cell(cell, current_piece):
-
-    current_cell = cell.split("_")
-
-    current_cell = str(current_cell[0]) + "_" + current_piece
-
-    return current_cell
-
-def find_move_coord(move):
-
-    coord = []
-
-    for i in range(len(board_coord)):
-
-        for j in range(len(board_coord[i])):
-
-            if move == board_coord[i][j]:
-
-                coord = [i, j]
-
-    return coord
-
-def find_current_piece(move, current_board):
-
-    i = find_move_coord(move[0])[0]
-    j = find_move_coord(move[0])[1]
-
-    current_piece = current_board[i][j].split("_")[1]
-
-    return current_piece
-
-def is_your_piece(move, turn, current_board):
-
-    current_piece = find_current_piece(move, current_board)
-    
-    if turn == "white":
-        if current_piece[0] == "w":
-            return True
-        else:
-            return False
-
-    if turn == "black":
-        if current_piece[0] == "b":
-            return True
-        else:
-            return False
-
-def make_move(move, current_board):
-
-    move = move.split(" ")
-    
-    i = find_move_coord(move[0])[0]
-    j = find_move_coord(move[0])[1]
-
-    current_piece = current_board[i][j].split("_")[1]
-
-    current_board[i][j] = purge_cell(current_board[i][j])
-
-    x = find_move_coord(move[1])[0]
-    y = find_move_coord(move[1])[1]
-
-    current_board[x][y] = fill_cell(current_board[x][y], current_piece)
-
-    return current_board
-
 def standardGame():
 
-    def init_board_standard():
-
-        start_board = board
-
-        for i in range(2, 7):
-            for j in range(len(start_board[i])):
-                start_board[i][j] = "White_00"
-
-        start_board[0][0] = fill_cell(start_board[0][0], black_rook.get_avatar())
-        start_board[0][1] = fill_cell(start_board[0][1], black_horse.get_avatar())
-        start_board[0][2] = fill_cell(start_board[0][2], black_bishop.get_avatar())
-        start_board[0][3] = fill_cell(start_board[0][3], black_queen.get_avatar())
-        start_board[0][4] = fill_cell(start_board[0][4], black_king.get_avatar())
-        start_board[0][5] = fill_cell(start_board[0][5], black_bishop.get_avatar())
-        start_board[0][6] = fill_cell(start_board[0][6], black_horse.get_avatar())
-        start_board[0][7] = fill_cell(start_board[0][7], black_rook.get_avatar())
-
-        start_board[1][0] = fill_cell(start_board[1][0], black_pawn.get_avatar())
-        start_board[1][1] = fill_cell(start_board[1][1], black_pawn.get_avatar())
-        start_board[1][2] = fill_cell(start_board[1][2], black_pawn.get_avatar())
-        start_board[1][3] = fill_cell(start_board[1][3], black_pawn.get_avatar())
-        start_board[1][4] = fill_cell(start_board[1][4], black_pawn.get_avatar())
-        start_board[1][5] = fill_cell(start_board[1][5], black_pawn.get_avatar())
-        start_board[1][6] = fill_cell(start_board[1][6], black_pawn.get_avatar())
-        start_board[1][7] = fill_cell(start_board[1][7], black_pawn.get_avatar())
-
-        start_board[6][0] = fill_cell(start_board[1][0], white_pawn.get_avatar())
-        start_board[6][1] = fill_cell(start_board[1][1], white_pawn.get_avatar())
-        start_board[6][2] = fill_cell(start_board[1][2], white_pawn.get_avatar())
-        start_board[6][3] = fill_cell(start_board[1][3], white_pawn.get_avatar())
-        start_board[6][4] = fill_cell(start_board[1][4], white_pawn.get_avatar())
-        start_board[6][5] = fill_cell(start_board[1][5], white_pawn.get_avatar())
-        start_board[6][6] = fill_cell(start_board[1][6], white_pawn.get_avatar())
-        start_board[6][7] = fill_cell(start_board[1][7], white_pawn.get_avatar())
-
-        start_board[7][0] = fill_cell(start_board[0][0], white_rook.get_avatar())
-        start_board[7][1] = fill_cell(start_board[0][1], white_horse.get_avatar())
-        start_board[7][2] = fill_cell(start_board[0][2], white_bishop.get_avatar())
-        start_board[7][3] = fill_cell(start_board[0][3], white_queen.get_avatar())
-        start_board[7][4] = fill_cell(start_board[0][4], white_king.get_avatar())
-        start_board[7][5] = fill_cell(start_board[0][5], white_bishop.get_avatar())
-        start_board[7][6] = fill_cell(start_board[0][6], white_horse.get_avatar())
-        start_board[7][7] = fill_cell(start_board[0][7], white_rook.get_avatar())
-        
-        return start_board
-
-    current_board = init_board_standard()
+    current_board = board_operations.classic_board()
 
     print("The game has begun!\n")
 
@@ -248,15 +105,15 @@ def standardGame():
 
     turn = "white"
 
-    def check_turn(turn):
+    # def check_turn(turn):
         
-        if turn == "white":
-            turn == "black"
+    #     if turn == "white":
+    #         turn == "black"
         
-        elif turn == "black":
-            turn == "white"
+    #     elif turn == "black":
+    #         turn == "white"
         
-        return turn
+    #     return turn
     
     # while win_check_white() != 0 and win_check_black() != 0:
 
@@ -264,29 +121,60 @@ def standardGame():
     count = 0 
 
     #while win condition not completed
-
-    while count < 10:
+    
+    while count<200:
                 
         if turn == "white":
 
             move = move_check.input_move_white(player_white, board_coord, turn, current_board)
 
-            current_board = make_move(move, current_board)
+            current_board = board_operations.make_move(move, current_board)
+
+            black_king_coord = board_evaluation.get_black_king_coord(current_board)
+
+            all_white_attacks = board_evaluation.get_all_white_attacks(current_board)
+            
+            if (black_king_coord in all_white_attacks):
+
+                if board_evaluation.opponent_has_no_legal_moves(turn, current_board):
+
+                    print(player_white + " wins!")
+                    break                
+            
+            else:
+                if win_condition.is_draw(turn, current_board): 
+                    print("Draw!")
+                    break
+
 
             turn = "black"
-                                   
+
         elif turn == "black":
 
             move = move_check.input_move_black(player_black, board_coord, turn, current_board)
 
-            current_board = make_move(move, current_board)
+            current_board = board_operations.make_move(move, current_board)
+
+            white_king_coord = board_evaluation.get_white_king_coord(current_board)
+
+            all_black_attacks = board_evaluation.get_all_black_attacks(current_board)
+            
+            if (white_king_coord in all_black_attacks):
+
+                if board_evaluation.opponent_has_no_legal_moves(turn, current_board):
+
+                    print(player_black + " wins!")
+                    break                
+            
+            else:
+                if win_condition.is_draw(turn, current_board): 
+                    print("Draw!")
+                    break
 
             turn = "white"    
         
         count += 1
 
-        show_board_status(current_board)
-
-    return True
+        show_board_status(current_board)    
 
 standardGame() 

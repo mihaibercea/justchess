@@ -369,13 +369,20 @@ def is_move_valid(move, board_coord, turn, current_board):
 
             black_king_coord = board_evaluation.get_black_king_coord(current_board)
 
+            all_white_coords = board_evaluation.get_all_white_coords(current_board)
+
+            all_black_coords = board_evaluation.get_all_black_coords(current_board)
+
             new_board = revert_test_move(move, new_board, board_coord)
 
             print("All white attacks:  " + str(all_white_attacks))
-            print("Black king coord  " + str(black_king_coord))
-
+            print("All white coords:  " + str(all_white_coords))
+            
             print("All black attacks:  " + str(all_black_attacks))
+            print("All black coords:  " + str(all_black_coords))
+
             print("White king coord  " + str(white_king_coord))
+            print("Black king coord  " + str(black_king_coord))
 
             # for i in range(len(current_board)):
 

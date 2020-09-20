@@ -1,4 +1,6 @@
 
+# defines piece attacks and moves on the board.
+
 import move_check
 import board_evaluation
 
@@ -748,7 +750,7 @@ class white_king():
 
         #available_moves_final = [i for i in available_moves_1 if i not in all_black_attacks]
 
-        print("White king can move to: " + str(available_moves_1))
+        #print("White king can move to: " + str(available_moves_1))
 
         return available_moves_1              
             
@@ -1482,7 +1484,7 @@ class black_king():
 
         #available_moves_final = [i for i in available_moves_1 if i not in all_white_attacks]
 
-        print("Black king can move to: " + str(available_moves_1))
+        #print("Black king can move to: " + str(available_moves_1))
 
         return available_moves_1              
             

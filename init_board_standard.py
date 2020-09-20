@@ -38,7 +38,7 @@ board_coord = [
 ]
 
 
-def init_board_standard():
+def classic_board():
 
     start_board = board
 
