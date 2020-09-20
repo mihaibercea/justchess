@@ -10,6 +10,7 @@ import numpy
 import win_condition
 import move_check
 import pieces
+import board_evaluation
 
 # Add a class for pieces
 # Add a class for each 
@@ -39,18 +40,18 @@ board_coord = [
 
 # board_coord_assigned IS NOT USED!
 
-# board_coord_assigned = {
+board_coord_assigned = {
     
-#     "a8" : board[0][0], "b8" : board[0][1], "c8" : board[0][2], "d8" : board[0][3], "e8" : board[0][4], "f8" : board[0][5], "g8" : board[0][6], "h8" : board[0][7],
-#     "a7" : board[1][0], "b7" : board[1][1], "c7" : board[1][2], "d7" : board[1][3], "e7" : board[1][4], "f7" : board[1][5], "g7" : board[1][6], "h7" : board[1][7],
-#     "a6" : board[2][0], "b6" : board[2][1], "c6" : board[2][2], "d6" : board[2][3], "e6" : board[2][4], "f6" : board[2][5], "g6" : board[2][6], "h6" : board[2][7],
-#     "a5" : board[3][0], "b5" : board[3][1], "c5" : board[3][2], "d5" : board[3][3], "e5" : board[3][4], "f5" : board[3][5], "g5" : board[3][6], "h5" : board[3][7],
-#     "a4" : board[4][0], "b4" : board[4][1], "c4" : board[4][2], "d4" : board[4][3], "e4" : board[4][4], "f4" : board[4][5], "g4" : board[4][6], "h4" : board[4][7],
-#     "a3" : board[5][0], "b3" : board[5][1], "c3" : board[5][2], "d3" : board[5][3], "e3" : board[5][4], "f3" : board[5][5], "g3" : board[5][6], "h3" : board[5][7],
-#     "a2" : board[6][0], "b2" : board[6][1], "c2" : board[6][2], "d2" : board[6][3], "e2" : board[6][4], "f2" : board[6][5], "g2" : board[6][6], "h2" : board[6][7],
-#     "a1" : board[7][0], "b1" : board[7][1], "c1" : board[7][2], "d1" : board[7][3], "e1" : board[7][4], "f1" : board[7][5], "g1" : board[7][6], "h1" : board[7][7],
+    "a8" : board[0][0], "b8" : board[0][1], "c8" : board[0][2], "d8" : board[0][3], "e8" : board[0][4], "f8" : board[0][5], "g8" : board[0][6], "h8" : board[0][7],
+    "a7" : board[1][0], "b7" : board[1][1], "c7" : board[1][2], "d7" : board[1][3], "e7" : board[1][4], "f7" : board[1][5], "g7" : board[1][6], "h7" : board[1][7],
+    "a6" : board[2][0], "b6" : board[2][1], "c6" : board[2][2], "d6" : board[2][3], "e6" : board[2][4], "f6" : board[2][5], "g6" : board[2][6], "h6" : board[2][7],
+    "a5" : board[3][0], "b5" : board[3][1], "c5" : board[3][2], "d5" : board[3][3], "e5" : board[3][4], "f5" : board[3][5], "g5" : board[3][6], "h5" : board[3][7],
+    "a4" : board[4][0], "b4" : board[4][1], "c4" : board[4][2], "d4" : board[4][3], "e4" : board[4][4], "f4" : board[4][5], "g4" : board[4][6], "h4" : board[4][7],
+    "a3" : board[5][0], "b3" : board[5][1], "c3" : board[5][2], "d3" : board[5][3], "e3" : board[5][4], "f3" : board[5][5], "g3" : board[5][6], "h3" : board[5][7],
+    "a2" : board[6][0], "b2" : board[6][1], "c2" : board[6][2], "d2" : board[6][3], "e2" : board[6][4], "f2" : board[6][5], "g2" : board[6][6], "h2" : board[6][7],
+    "a1" : board[7][0], "b1" : board[7][1], "c1" : board[7][2], "d1" : board[7][3], "e1" : board[7][4], "f1" : board[7][5], "g1" : board[7][6], "h1" : board[7][7],
 
-#     }
+    }
 
 # class piece:
 
@@ -92,11 +93,11 @@ def purge_cell(cell):
 
 # testing purge:
 
-# #print(board)
+#print(board)
 
-# board[0][0] = purge_cell(board[0][0])
+#board[0][0] = purge_cell(board[0][0])
 
-# #print(board)
+#print(board)
 
 def fill_cell(cell, current_piece):
 
@@ -106,7 +107,7 @@ def fill_cell(cell, current_piece):
 
     return current_cell
 
-def find_move_coord(indice):
+def find_move_coord(move):
 
     coord = []
 
@@ -114,7 +115,7 @@ def find_move_coord(indice):
 
         for j in range(len(board_coord[i])):
 
-            if indice == board_coord[i][j]:
+            if move == board_coord[i][j]:
 
                 coord = [i, j]
 
@@ -145,51 +146,23 @@ def is_your_piece(move, turn, current_board):
         else:
             return False
 
-#board[0][0] = fill_cell(board[0][0], "zz")
+def make_move(move, current_board):
 
-#print(board[0][0])
-
-insufficient_material = 0
-
-# def win_check_white():
-
-#     win = 0
+    move = move.split(" ")
     
-#     if black_king.legal_move == 0:
+    i = find_move_coord(move[0])[0]
+    j = find_move_coord(move[0])[1]
 
-#         win = 1
+    current_piece = current_board[i][j].split("_")[1]
 
-#     return win
+    current_board[i][j] = purge_cell(current_board[i][j])
 
-# def win_check_black():
+    x = find_move_coord(move[1])[0]
+    y = find_move_coord(move[1])[1]
 
-#     win = 0
-    
-#     if white_king.legal_move == 0:
+    current_board[x][y] = fill_cell(current_board[x][y], current_piece)
 
-#         win = 1
-
-#     return win 
-
-# def check_material(current_board):
-
-#     if insufficient_material:
-
-#         return True
-    
-#     else:
-
-#         return False
-
-# def draw_check(current_board):
-    
-#     draw = 0
-
-#     if check_material(current_board):
-
-#         draw = 1
-
-#     return draw
+    return current_board
 
 def standardGame():
 
@@ -252,7 +225,7 @@ def standardGame():
 
     player_white = str(player_white)
     
-    print("who plays black?\n?")
+    print("Who plays black?\n?")
 
     player_black = input()
 
@@ -287,43 +260,18 @@ def standardGame():
     
     # while win_check_white() != 0 and win_check_black() != 0:
 
+
     count = 0 
 
     #while win condition not completed
 
-   #not_draw = win_condition.is_not_draw()
-
-    while win_condition.is_not_draw():
+    while count < 10:
                 
         if turn == "white":
 
             move = move_check.input_move_white(player_white, board_coord, turn, current_board)
-        
-            # to implement move_check.make_move() instead
 
-            move = move.split(" ")
-          
-            i = find_move_coord(move[0])[0]
-            j = find_move_coord(move[0])[1]
-
-            current_piece = current_board[i][j].split("_")[1]
-
-            current_board[i][j] = move_check.purge_cell(current_board[i][j])
-
-            x = find_move_coord(move[1])[0]
-            y = find_move_coord(move[1])[1]
-
-            current_board[x][y] = move_check.fill_cell(current_board[x][y], current_piece)
-
-            not_draw = win_condition.is_not_draw()
-
-            if win_condition.is_black_king_mated():
-                
-                show_board_status(current_board)
-
-                print(player_white + " wins!")
-
-                break
+            current_board = make_move(move, current_board)
 
             turn = "black"
                                    
@@ -331,41 +279,14 @@ def standardGame():
 
             move = move_check.input_move_black(player_black, board_coord, turn, current_board)
 
-            # to implement move_check.make_move() instead
+            current_board = make_move(move, current_board)
 
-            move = move.split(" ")
-          
-            i = find_move_coord(move[0])[0]
-            j = find_move_coord(move[0])[1]
+            turn = "white"    
+        
+        count += 1
 
-            current_piece = current_board[i][j].split("_")[1]
-
-            current_board[i][j] = move_check.purge_cell(current_board[i][j])
-
-            x = find_move_coord(move[1])[0]
-            y = find_move_coord(move[1])[1]                      
-
-            current_board[x][y] = move_check.fill_cell(current_board[x][y], current_piece)
-
-            not_draw = win_condition.is_not_draw()
-
-            if win_condition.is_black_king_mated():
-                
-                show_board_status(current_board)
-
-                print(player_white + " wins!")
-
-                break
-
-            turn = "white"           
-            
         show_board_status(current_board)
 
-        if not_draw == False:           
-
-            print("It's a Draw")
-
     return True
-
 
 standardGame() 

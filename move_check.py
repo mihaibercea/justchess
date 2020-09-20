@@ -1,5 +1,4 @@
 import pieces
-import chess_main
 import board_evaluation
 
 def piece_from_coord(move, board_coord):
@@ -43,6 +42,7 @@ def find_current_piece(current_position, current_board):
 
     return current_piece
 
+
 def purge_cell(cell):
     
     current_cell = cell.split("_")
@@ -50,6 +50,14 @@ def purge_cell(cell):
     current_cell = str(current_cell[0]) + "_" + "00"
 
     return current_cell
+
+# testing purge:
+
+#print(board)
+
+#board[0][0] = purge_cell(board[0][0])
+
+#print(board)
 
 def fill_cell(cell, current_piece):
 
@@ -59,7 +67,7 @@ def fill_cell(cell, current_piece):
 
     return current_cell
 
-# def find_move_coord(indice):
+# def find_move_coord(move):
 
 #     coord = []
 
@@ -67,29 +75,44 @@ def fill_cell(cell, current_piece):
 
 #         for j in range(len(board_coord[i])):
 
-#             if indice == board_coord[i][j]:
+#             if move == board_coord[i][j]:
 
 #                 coord = [i, j]
 
 #     return coord
 
-def make_move(move, current_board, board_coord):
- 
-    move = move.split(" ")
-    
+
+def make_test_move(move, new_board, board_coord):
+        
     i = piece_from_coord(move, board_coord)[0]
     j = piece_from_coord(move, board_coord)[1]
 
-    current_piece = current_board[i][j].split("_")[1]
+    current_piece = new_board[i][j].split("_")[1]
 
-    current_board[i][j] = purge_cell(current_board[i][j])
+    new_board[i][j] = purge_cell(new_board[i][j])
 
     x = piece_to_coord(move, board_coord)[0]
     y = piece_to_coord(move, board_coord)[1]
 
-    current_board[x][y] = fill_cell(current_board[x][y], current_piece)
+    new_board[x][y] = fill_cell(new_board[x][y], current_piece)
 
-    return current_board
+    return new_board
+
+def revert_test_move(move, new_board, board_coord):
+
+    i = piece_to_coord(move, board_coord)[0]
+    j = piece_to_coord(move, board_coord)[1]
+
+    current_piece = new_board[i][j].split("_")[1]
+
+    new_board[i][j] = purge_cell(new_board[i][j])
+
+    x = piece_from_coord(move, board_coord)[0]
+    y = piece_from_coord(move, board_coord)[1]
+
+    new_board[x][y] = fill_cell(new_board[x][y], current_piece)
+
+    return new_board
 
 def get_current_piece_moves(current_position, current_board):
 
@@ -220,7 +243,7 @@ def get_current_piece_attacks(current_position, current_board):
         piece = pieces.black_queen()
         piece_attacks = piece.get_available_attacks(current_position, current_board)
 
-    elif current_piece == "wk":
+    elif current_piece == "bk":
         
         piece = pieces.black_king()
         piece_attacks = piece.get_available_attacks(current_position, current_board)
@@ -316,6 +339,8 @@ def is_move_valid(move, board_coord, turn, current_board):
 
         next_position = piece_to_coord(move, board_coord)
 
+        print("next pos" + str(next_position))
+
         if is_your_piece(current_position, turn, current_board):
                         
             piece_moves = get_current_piece_moves(current_position, current_board)
@@ -323,42 +348,63 @@ def is_move_valid(move, board_coord, turn, current_board):
             piece_attacks = get_current_piece_attacks(current_position, current_board)
            
 
-            print(piece_moves)
-            print(piece_attacks)
+            print("Current piece moves: " + str(piece_moves))
+            print("Current piece attacks: " + str(piece_attacks))
 
-            new_board = make_move(move, current_board, board_coord)
+            new_board = current_board
 
-            all_black_attacks = board_evaluation.get_all_black_attacks(new_board)
+            new_board = make_test_move(move, new_board, board_coord)
 
-            all_white_attacks = board_evaluation.get_all_white_attacks(new_board)
+            # for i in range(len(new_board)):
 
-            white_king_coord = board_evaluation.get_white_king_coord(new_board)
-
-            black_king_coord = board_evaluation.get_black_king_coord(new_board)
+            #     print(new_board[i])
+            #     print("\n")
             
-            if turn == "white" and (white_king_coord in all_black_attacks) :
+
+            all_black_attacks = board_evaluation.get_all_black_attacks(current_board)
+
+            all_white_attacks = board_evaluation.get_all_white_attacks(current_board)
+
+            white_king_coord = board_evaluation.get_white_king_coord(current_board)
+
+            black_king_coord = board_evaluation.get_black_king_coord(current_board)
+
+            new_board = revert_test_move(move, new_board, board_coord)
+
+            print("All white attacks:  " + str(all_white_attacks))
+            print("Black king coord  " + str(black_king_coord))
+
+            print("All black attacks:  " + str(all_black_attacks))
+            print("White king coord  " + str(white_king_coord))
+
+            # for i in range(len(current_board)):
+
+            #     print(current_board[i])
+            #     print("\n")
+            
+            if (turn == "white" and (white_king_coord in all_black_attacks)) :
 
                 return 5
 
-            elif turn == "black" and (black_king_coord in all_white_attacks):
+            elif (turn == "black" and (black_king_coord in all_white_attacks)):
 
                 return 6
 
-            elif (next_position not in piece_attacks) or (next_position not in piece_attacks):
+            elif ((next_position not in piece_moves) and (next_position not in piece_attacks)):
 
                 return 7
 
-            elif (next_position in piece_attacks) and target_not_your_piece(next_position, turn, current_board):
+            elif ((next_position in piece_attacks) and is_your_piece(next_position, turn, current_board)):
+                        
 
                 return 8
 
             else:
 
-                return 3
-
+                return 3                
         else:
             
-            return 4          
+            return 4           
 
 def input_move_white(player_white, board_coord, turn, current_board):
 
@@ -371,11 +417,11 @@ def input_move_white(player_white, board_coord, turn, current_board):
        
     move = input()
         
-    move = str(move) 
-
-    move = move.lower()   
+    move = str(move)  
 
     check_move = is_move_valid(move, board_coord, turn, current_board)
+
+    print("Check move: " + str(check_move))
 
     if check_move == 0:
             
@@ -401,17 +447,16 @@ def input_move_white(player_white, board_coord, turn, current_board):
         
         final_move = input_move_white(player_white, board_coord, turn, current_board)
 
-    elif check_move == 3:
-        
-        final_move = move
-    
-    else:
+    elif (check_move==5 or check_move==6 or check_move==7 or check_move==8):
 
         print("Illegal move, please try again\n")
         
         final_move = input_move_white(player_white, board_coord, turn, current_board)
 
-
+    elif check_move == 3:
+        
+        final_move = move
+             
     return final_move 
 
 
@@ -426,11 +471,11 @@ def input_move_black(player_black,  board_coord, turn, current_board):
        
     move = input()
         
-    move = str(move)
+    move = str(move)  
 
-    move = move.lower()
-        
     check_move = is_move_valid(move, board_coord, turn, current_board)
+
+    print("Check move: " + str(check_move))
 
     if check_move == 0:
             
@@ -454,19 +499,18 @@ def input_move_black(player_black,  board_coord, turn, current_board):
 
         print("You did not select your piece, please try again\n")
         
-        final_move = input_move_black(player_black,  board_coord, turn, current_board)
+        final_move = input_move_white(player_black, board_coord, turn, current_board)
+
+    elif (check_move==5 or check_move==6 or check_move==7 or check_move==8):
+
+        print("Illegal move, please try again\n")
+        
+        final_move = input_move_white(player_black, board_coord, turn, current_board)
 
     elif check_move == 3:
         
         final_move = move
-
-    else:
-
-        print("Illegal move, please try again\n")
-        
-        final_move = input_move_black(player_black, board_coord, turn, current_board)
-
-
+             
     return final_move 
     
 
