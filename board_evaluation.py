@@ -457,35 +457,47 @@ def get_all_black_pawn_attacks(current_board):
 
     return res
 
+
+def find_current_piece(current_position, current_board):
+
+    i = current_position[0]
+    j = current_position[1]
+
+    current_piece = current_board[i][j].split("_")[1]
+
+    return current_piece
+
 def test_move(pos, attack, new_board):
         
     i = pos[0]
     j = pos[1]
 
-    that_current_piece = new_board[i][j].split("_")[1]
+    current_piece = new_board[i][j].split("_")[1]
 
     new_board[i][j] = board_operations.purge_cell(new_board[i][j])
 
     x = attack[0]
     y = attack[1]
 
-    new_board[x][y] = board_operations.fill_cell(new_board[x][y], that_current_piece)
+    #to implement a way to refill the previous cell with it's piece.
+
+    new_board[x][y] = board_operations.fill_cell(new_board[x][y], current_piece)
 
     return new_board
 
-def rev_test_move(pos, attack, new_board):
+def rev_test_move(pos, attack, new_board, attacked_piece):
 
     i = attack[0]
     j = attack[1]
 
-    that_current_piece = new_board[i][j].split("_")[1]
+    new_current_piece = new_board[i][j].split("_")[1]
 
-    new_board[i][j] = board_operations.purge_cell(new_board[i][j])
+    new_board[i][j] = board_operations.fill_cell(new_board[i][j], attacked_piece)
 
     x = pos[0]
     y = pos[1]
 
-    new_board[x][y] = board_operations.fill_cell(new_board[x][y], that_current_piece)
+    new_board[x][y] = board_operations.fill_cell(new_board[x][y], new_current_piece)
 
     return new_board
 
@@ -548,18 +560,21 @@ def opponent_has_no_legal_moves(turn, current_board):
                 for attack in piece_moves:               
                 
                     new_board = current_board
+                # bug happens here
                     
+                    attacked_piece = find_current_piece(attack, current_board)
+
                     new_board = test_move(pos, attack, new_board)
 
-                    new_all_black_attacks = get_all_black_attacks(current_board)
+                    new_all_black_attacks = get_all_black_attacks(new_board)
 
-                    new_all_white_attacks = get_all_white_attacks(current_board)
+                    new_all_white_attacks = get_all_white_attacks(new_board)
 
-                    new_white_king_coord = get_white_king_coord(current_board)
+                    new_white_king_coord = get_white_king_coord(new_board)
 
-                    new_black_king_coord = get_black_king_coord(current_board)
+                    new_black_king_coord = get_black_king_coord(new_board)
 
-                    new_board = rev_test_move(pos, attack, new_board)
+                    new_board = rev_test_move(pos, attack, new_board, attacked_piece)
                     
                     if (new_black_king_coord not in new_all_white_attacks):
 
@@ -575,32 +590,35 @@ def opponent_has_no_legal_moves(turn, current_board):
             
                     new_board = current_board
                     
+                    attacked_piece = find_current_piece(attack, current_board)
+
                     new_board = test_move(pos, attack, new_board)
 
-                    new_all_black_attacks = get_all_black_attacks(current_board)
+                    new_all_black_attacks = get_all_black_attacks(new_board)
 
-                    new_all_white_attacks = get_all_white_attacks(current_board)
+                    new_all_white_attacks = get_all_white_attacks(new_board)
 
-                    new_white_king_coord = get_white_king_coord(current_board)
+                    new_white_king_coord = get_white_king_coord(new_board)
 
-                    new_black_king_coord = get_black_king_coord(current_board)
+                    new_black_king_coord = get_black_king_coord(new_board)
 
-                    new_board = rev_test_move(pos, attack, new_board)
+                    new_board = rev_test_move(pos, attack, new_board, attacked_piece)
                     
                     if (new_black_king_coord not in new_all_white_attacks):
 
                         check = 1   
         
+        print(check)
 
         if check == 1 :
 
             return False
 
-        if check == 0 :
+        elif check == 0 :
 
             return  True
 
-    if turn == "black:":
+    if turn == "black":
 
         check = 0
 
@@ -617,17 +635,19 @@ def opponent_has_no_legal_moves(turn, current_board):
                 
                     new_board = current_board
                     
+                    attacked_piece = find_current_piece(attack, current_board)
+
                     new_board = test_move(pos, attack, new_board)
 
-                    new_all_black_attacks = get_all_black_attacks(current_board)
+                    new_all_black_attacks = get_all_black_attacks(new_board)
 
-                    new_all_white_attacks = get_all_white_attacks(current_board)
+                    new_all_white_attacks = get_all_white_attacks(new_board)
 
-                    new_white_king_coord = get_white_king_coord(current_board)
+                    new_white_king_coord = get_white_king_coord(new_board)
 
-                    new_black_king_coord = get_black_king_coord(current_board)
+                    new_black_king_coord = get_black_king_coord(new_board)
 
-                    new_board = rev_test_move(pos, attack, new_board)
+                    new_board = rev_test_move(pos, attack, new_board, attacked_piece)
                     
                     if (new_white_king_coord not in new_all_black_attacks):
 
@@ -637,23 +657,25 @@ def opponent_has_no_legal_moves(turn, current_board):
                 
                 pawn_attacks = move_check.get_current_piece_moves(pos, current_board)
 
-                valid_attacks = [pos for pos in all_white_coords if pos in pawn_attacks]
+                valid_attacks = [pos for pos in all_black_coords if pos in pawn_attacks]
 
                 for attack in valid_attacks:               
             
                     new_board = current_board
                     
+                    attacked_piece = find_current_piece(attack, current_board)
+
                     new_board = test_move(pos, attack, new_board)
 
-                    new_all_black_attacks = get_all_black_attacks(current_board)
+                    new_all_black_attacks = get_all_black_attacks(new_board)
 
-                    new_all_white_attacks = get_all_white_attacks(current_board)
+                    new_all_white_attacks = get_all_white_attacks(new_board)
 
-                    new_white_king_coord = get_white_king_coord(current_board)
+                    new_white_king_coord = get_white_king_coord(new_board)
 
-                    new_black_king_coord = get_black_king_coord(current_board)
+                    new_black_king_coord = get_black_king_coord(new_board)
 
-                    new_board = rev_test_move(pos, attack, new_board)
+                    new_board = rev_test_move(pos, attack, new_board, attacked_piece)
                     
                     if (new_white_king_coord not in new_all_black_attacks):
 
@@ -665,7 +687,7 @@ def opponent_has_no_legal_moves(turn, current_board):
 
             return False
 
-        if check == 0 :
+        elif check == 0 :
 
             return  True
 

@@ -74,7 +74,8 @@ def classic_board():
 
     start_board[7][0] = fill_cell(start_board[0][0], white_rook.get_avatar())
     start_board[7][1] = fill_cell(start_board[0][1], white_horse.get_avatar())
-    start_board[7][2] = fill_cell(start_board[0][3], white_queen.get_avatar())
+    start_board[7][2] = fill_cell(start_board[0][3], white_bishop.get_avatar())
+    start_board[7][3] = fill_cell(start_board[0][3], white_queen.get_avatar())
     start_board[7][4] = fill_cell(start_board[0][4], white_king.get_avatar())
     start_board[7][5] = fill_cell(start_board[0][5], white_bishop.get_avatar())
     start_board[7][6] = fill_cell(start_board[0][6], white_horse.get_avatar())

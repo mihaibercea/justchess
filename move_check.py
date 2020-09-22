@@ -82,38 +82,6 @@ def fill_cell(cell, current_piece):
 #     return coord
 
 
-def make_test_move(move, new_board, board_coord):
-        
-    i = piece_from_coord(move, board_coord)[0]
-    j = piece_from_coord(move, board_coord)[1]
-
-    current_piece = new_board[i][j].split("_")[1]
-
-    new_board[i][j] = purge_cell(new_board[i][j])
-
-    x = piece_to_coord(move, board_coord)[0]
-    y = piece_to_coord(move, board_coord)[1]
-
-    new_board[x][y] = fill_cell(new_board[x][y], current_piece)
-
-    return new_board
-
-def revert_test_move(move, new_board, board_coord):
-
-    i = piece_to_coord(move, board_coord)[0]
-    j = piece_to_coord(move, board_coord)[1]
-
-    current_piece = new_board[i][j].split("_")[1]
-
-    new_board[i][j] = purge_cell(new_board[i][j])
-
-    x = piece_from_coord(move, board_coord)[0]
-    y = piece_from_coord(move, board_coord)[1]
-
-    new_board[x][y] = fill_cell(new_board[x][y], current_piece)
-
-    return new_board
-
 def get_current_piece_moves(current_position, current_board):
 
     piece_moves = []
@@ -282,6 +250,39 @@ def target_not_your_piece(next_position, turn, current_board):
             return False
         else:
             return True
+
+def make_test_move(move, new_board, board_coord):
+        
+    i = piece_from_coord(move, board_coord)[0]
+    j = piece_from_coord(move, board_coord)[1]
+
+    current_piece = new_board[i][j].split("_")[1]
+
+    new_board[i][j] = purge_cell(new_board[i][j])
+
+    x = piece_to_coord(move, board_coord)[0]
+    y = piece_to_coord(move, board_coord)[1]
+
+    new_board[x][y] = fill_cell(new_board[x][y], current_piece)
+
+    return new_board
+
+def revert_test_move(move, new_board, board_coord):
+
+    i = piece_to_coord(move, board_coord)[0]
+    j = piece_to_coord(move, board_coord)[1]
+
+    current_piece = new_board[i][j].split("_")[1]
+
+    new_board[i][j] = purge_cell(new_board[i][j])
+
+    x = piece_from_coord(move, board_coord)[0]
+    y = piece_from_coord(move, board_coord)[1]
+
+    new_board[x][y] = fill_cell(new_board[x][y], current_piece)
+
+    return new_board
+
 
 def is_move_valid(move, board_coord, turn, current_board):
 
