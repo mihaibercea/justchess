@@ -69,8 +69,7 @@ black_king = pieces.piece("black", "king")
 
 def standardGame():
 
-    current_board = board_operations.test_board()
-
+    current_board = board_operations.classic_board()
     print("The game has begun!\n")
 
     player_white = ""
