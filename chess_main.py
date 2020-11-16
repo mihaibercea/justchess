@@ -6,12 +6,13 @@
 import random
 import string
 import math
-import numpy
+#import numpy
 import win_condition
 import move_check
 import pieces
 import board_evaluation
 import board_operations
+import json
 
    
 board = [
@@ -66,10 +67,148 @@ black_rook = pieces.piece("black", "rook")
 black_queen = pieces.piece("black", "queen")
 black_king = pieces.piece("black", "king")
 
+def input_move_white(player_white, board_coord, turn, current_board):
+
+    print("\n")
+    print("White moves:")
+        
+    #RECURENTA!    
+     
+    print("What is your move, " + player_white + "?" +" (example: 'e2 e4')")
+       
+    move = input()
+        
+    move = str(move)  
+
+    check_move = move_check.is_move_valid(move, board_coord, turn, current_board)
+
+    print("Check move: " + str(check_move))
+
+    if check_move == 0:
+            
+        print("Completely wrong input, please try again\n")
+        
+        final_move = input_move_white(player_white, board_coord, turn, current_board)
+
+    elif check_move == 1:
+            
+        print("The square you want to move from is not a valid squre, please try again\n")
+
+        final_move = input_move_white(player_white, board_coord, turn, current_board)
+
+    elif check_move == 2:
+
+        print("The square you want to move to is not a valid squre, please try again\n")
+        
+        final_move = input_move_white(player_white, board_coord, turn, current_board)
+
+    elif check_move == 4:
+
+        print("You did not select your piece, please try again\n")
+        
+        final_move = input_move_white(player_white, board_coord, turn, current_board)
+
+    elif (check_move==5 or check_move==6 or check_move==7 or check_move==8):
+
+        print("Illegal move, please try again\n")
+        
+        final_move = input_move_white(player_white, board_coord, turn, current_board)
+
+    elif check_move == 3:
+        
+        final_move = move
+
+        # current_position = move_check.piece_from_coord(move, board_coord)
+
+        # next_position = move_check.piece_to_coord(move, board_coord)
+
+        # current_piece = move_check.find_current_piece(current_position, current_board)
+
+        # move_check.check_en_passant_moves(current_position, current_piece, next_position)
+             
+    return final_move 
+
+
+def input_move_black(player_black,  board_coord, turn, current_board):
+
+    print("\n")
+    print("Black moves:")
+        
+    #RECURENTA!    
+     
+    print("What is your move, " + player_black + "?" +" (example: 'e2 e4')")
+       
+    move = input()
+        
+    move = str(move)  
+
+    check_move = move_check.is_move_valid(move, board_coord, turn, current_board)
+
+    print("Check move: " + str(check_move))
+
+    if check_move == 0:
+            
+        print("Completely wrong input, please try again\n")
+        
+        final_move = input_move_black(player_black,  board_coord, turn, current_board)
+
+    elif check_move == 1:
+            
+        print("The square you want to move from is not a valid squre, please try again\n")
+
+        final_move = input_move_black(player_black,  board_coord, turn, current_board)
+
+    elif check_move == 2:
+
+        print("The square you want to move to is not a valid squre, please try again\n")
+        
+        final_move = input_move_black(player_black,  board_coord, turn, current_board)
+
+    elif check_move == 4:
+
+        print("You did not select your piece, please try again\n")
+        
+        final_move = input_move_white(player_black, board_coord, turn, current_board)
+
+    elif (check_move==5 or check_move==6 or check_move==7 or check_move==8):
+
+        print("Illegal move, please try again\n")
+        
+        final_move = input_move_white(player_black, board_coord, turn, current_board)
+
+    elif check_move == 3:
+        
+        final_move = move
+
+        # current_position = move_check.piece_from_coord(move, board_coord)
+
+        # next_position = move_check.piece_to_coord(move, board_coord)
+
+        # current_piece = move_check.find_current_piece(current_position, current_board)
+
+        # move_check.check_en_passant_moves(current_position, current_piece, next_position)
+             
+    return final_move 
+
+def get_pgn_game(pgn_game, move, turn, turn_count, turn_move):
+    
+    if turn == "white":
+                        
+        turn_move.append(move)
+        
+        pgn_game[turn_count] = turn_move
+
+    if turn == "black":
+
+        turn_move.append(move) 
+
+        pgn_game[turn_count] = turn_move             
+
+    return pgn_game
 
 def standardGame():
 
-    current_board = board_operations.classic_board()
+    current_board = board_operations.test_board()
     print("The game has begun!\n")
 
     player_white = ""
@@ -116,16 +255,45 @@ def standardGame():
     
     # while win_check_white() != 0 and win_check_black() != 0:
 
-
-    count = 0 
-
+    
     #while win condition not completed
     
-    while count<200:
-                
+    all_moves = []
+
+    turn_count = 1    
+
+    game_flags = {}
+
+    pgn_game = {}
+
+    game_flags['en_passant_flag'] = []
+    game_flags['0-0_flag_white'] = []
+    game_flags['0-0-0_flag_white'] = []    
+    game_flags['0-0_flag_black'] = []
+    game_flags['0-0-0_flag_black'] = []    
+
+    with open("./game_database/current_game.json", "w") as outfile:  
+        json.dump(pgn_game, outfile) 
+
+    with open("./game_database/game_flags.json", "w") as outfile:  
+        json.dump(game_flags, outfile) 
+
+    while turn_count<200:             
+        
         if turn == "white":
 
-            move = move_check.input_move_white(player_white, board_coord, turn, current_board)
+            turn_move = []    
+
+            move = input_move_white(player_white, board_coord, turn, current_board)
+                        
+            pgn_game = get_pgn_game(pgn_game, move, turn, turn_count, turn_move)
+
+            with open("./game_database/current_game.json", "w") as outfile:  
+                json.dump(pgn_game, outfile) 
+            
+            # turn_move.append(move)
+            
+            # pgn_game[turn_count] = turn_move
 
             current_board = board_operations.make_move(move, current_board)
 
@@ -138,19 +306,29 @@ def standardGame():
                 if board_evaluation.opponent_has_no_legal_moves(turn, current_board):
 
                     print(player_white + " wins!")
+                    
                     break                
             
             else:
-                if win_condition.is_draw(turn, current_board): 
+                if win_condition.is_draw(turn, current_board):
                     print("Draw!")
-                    break
-
-
+                    
+                    break                   
+                                                
             turn = "black"
 
         elif turn == "black":
+            
+            move = input_move_black(player_black, board_coord, turn, current_board)
+            
+            pgn_game = get_pgn_game(pgn_game, move, turn, turn_count, turn_move)
 
-            move = move_check.input_move_black(player_black, board_coord, turn, current_board)
+            with open("./game_database/current_game.json", "w") as outfile:  
+                json.dump(pgn_game, outfile)  
+
+            # turn_move.append(move) 
+
+            # pgn_game[turn_count] = turn_move       
 
             current_board = board_operations.make_move(move, current_board)
 
@@ -163,17 +341,21 @@ def standardGame():
                 if board_evaluation.opponent_has_no_legal_moves(turn, current_board):
 
                     print(player_black + " wins!")
+                    
                     break                
             
             else:
                 if win_condition.is_draw(turn, current_board): 
+                    
                     print("Draw!")
-                    break
+                    break                    
 
-            turn = "white"    
-        
-        count += 1
+            turn = "white"                 
+
+            turn_count += 1                           
 
         show_board_status(current_board)    
-
+        
+    print(pgn_game)
+    
 standardGame() 

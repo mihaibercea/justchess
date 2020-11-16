@@ -1,5 +1,7 @@
 import pieces
 import board_evaluation
+# import chess_main
+import json
 
 def piece_from_coord(move, board_coord):
 
@@ -235,6 +237,22 @@ def is_your_piece(current_position, turn, current_board):
         else:
             return False
 
+def is_opponent_piece(current_position, turn, current_board):
+
+    current_piece = find_current_piece(current_position, current_board)
+    
+    if turn == "white":
+        if current_piece[0] == "b":
+            return True
+        else:
+            return False
+
+    if turn == "black":
+        if current_piece[0] == "w":
+            return True
+        else:
+            return False
+
 def target_not_your_piece(next_position, turn, current_board):
 
     current_piece = find_current_piece(next_position, current_board)
@@ -267,14 +285,14 @@ def make_test_move(move, new_board, board_coord):
 
     return new_board
 
-def revert_test_move(move, new_board, board_coord):
+def revert_test_move(move, new_board, board_coord, next_piece):
 
     i = piece_to_coord(move, board_coord)[0]
     j = piece_to_coord(move, board_coord)[1]
 
     current_piece = new_board[i][j].split("_")[1]
 
-    new_board[i][j] = purge_cell(new_board[i][j])
+    new_board[i][j] = fill_cell(new_board[i][j], next_piece)
 
     x = piece_from_coord(move, board_coord)[0]
     y = piece_from_coord(move, board_coord)[1]
@@ -283,7 +301,78 @@ def revert_test_move(move, new_board, board_coord):
 
     return new_board
 
+def add_en_passant_moves(test_pgn_game, current_position, current_piece, next_position):
 
+    if current_piece == "wp":
+
+        en_passant_flag = []
+
+        if ((current_position[0] == 6) and next_position[0] == 4):
+
+            en_passant_flag.append(5)
+            en_passant_flag.append(current_position[1])
+
+            test_pgn_game['en_passant_flag'] = en_passant_flag
+
+            with open("./game_database/game_flags.json", "w") as outfile:  
+                json.dump(test_pgn_game, outfile) 
+
+    elif current_piece == "bp":
+
+        en_passant_flag = []
+
+        if ((current_position[0] == 1) and next_position[0] == 3):
+
+            en_passant_flag.append(2)
+            en_passant_flag.append(current_position[1])
+
+            test_pgn_game['en_passant_flag'] = en_passant_flag
+
+            with open("./game_database/game_flags.json", "w") as outfile:  
+                json.dump(test_pgn_game, outfile) 
+
+    else:
+
+        test_pgn_game['en_passant_flag'] = []
+
+def promote(current_piece):
+
+    promoted_piece = current_piece
+
+    print("Pick your promoted piece. Please type one of the following:\n 'p' for pawn; 'r' for rook, 'h' for horse, 'b' for bishop or 'q' for queen:\n")
+
+    p_piece = input()
+    p_piece = str(p_piece)
+    valid_pieces = "prhbq"
+
+    length_check = 0
+    piece_check = 0
+        
+    if len(p_piece) == 1:
+        length_check = 1
+        
+        if p_piece in valid_pieces:
+
+             piece_check = 1
+        
+        else:
+            piece_check = 0
+
+    else:
+        length_check == 0
+
+    if length_check == 0 or piece_check == 0:
+
+        print("Wrong input. Please try again")
+        p_piece = promote(current_piece) 
+
+    if length_check == 1 and piece_check == 1:
+
+        promoted_piece = promoted_piece.strip("p")
+        promoted_piece = promoted_piece + p_piece
+
+        return promoted_piece
+    
 def is_move_valid(move, board_coord, turn, current_board):
 
     len_check = 0
@@ -340,6 +429,10 @@ def is_move_valid(move, board_coord, turn, current_board):
 
         next_position = piece_to_coord(move, board_coord)
 
+        current_piece = find_current_piece(current_position, current_board)
+
+        next_piece = find_current_piece(next_position, current_board)
+
         print("next pos" + str(next_position))
 
         if is_your_piece(current_position, turn, current_board):
@@ -347,21 +440,13 @@ def is_move_valid(move, board_coord, turn, current_board):
             piece_moves = get_current_piece_moves(current_position, current_board)
 
             piece_attacks = get_current_piece_attacks(current_position, current_board)
+
+            attacks_on_opp_pieces = []
+
+            promoted_piece = current_piece
+
+            promoted = 0
            
-
-            print("Current piece moves: " + str(piece_moves))
-            print("Current piece attacks: " + str(piece_attacks))
-
-            new_board = current_board
-
-            new_board = make_test_move(move, new_board, board_coord)
-
-            # for i in range(len(new_board)):
-
-            #     print(new_board[i])
-            #     print("\n")
-            
-
             all_black_attacks = board_evaluation.get_all_black_attacks(current_board)
 
             all_white_attacks = board_evaluation.get_all_white_attacks(current_board)
@@ -374,155 +459,126 @@ def is_move_valid(move, board_coord, turn, current_board):
 
             all_black_coords = board_evaluation.get_all_black_coords(current_board)
 
-            new_board = revert_test_move(move, new_board, board_coord)
+            print("Current piece moves: " + str(piece_moves))
+            print("Current piece attacks: " + str(piece_attacks))
 
-            print("All white attacks:  " + str(all_white_attacks))
-            print("All white coords:  " + str(all_white_coords))
+            if turn == "white":
             
-            print("All black attacks:  " + str(all_black_attacks))
-            print("All black coords:  " + str(all_black_coords))
+                if current_piece == "wp" and next_position[0] == 0 and next_piece == "00":
+                    
+                    promoted_piece = promote(current_piece)
 
-            print("White king coord  " + str(white_king_coord))
-            print("Black king coord  " + str(black_king_coord))
+                    promoted = 1
+
+            if turn == "black":
+            
+                if current_piece == "bp" and next_position[0] == 7 and next_piece == "00":
+                    
+                    promoted_piece = promote(current_piece)
+
+                    promoted = 1
+
+            new_board = current_board
+
+            new_board = make_test_move(move, new_board, board_coord)
+
+            if promoted == 1:
+                
+                i = piece_to_coord(move, board_coord)[0]
+                j = piece_to_coord(move, board_coord)[1]
+                
+                new_board[i][j] = fill_cell(new_board[i][j], promoted_piece)
+
+            # for i in range(len(new_board)):
+
+            #     print(new_board[i])
+            #     print("\n")
+            
+
+            test_all_black_attacks = board_evaluation.get_all_black_attacks(current_board)
+
+            test_all_white_attacks = board_evaluation.get_all_white_attacks(current_board)
+
+            test_white_king_coord = board_evaluation.get_white_king_coord(current_board)
+
+            test_black_king_coord = board_evaluation.get_black_king_coord(current_board)
+
+            test_all_white_coords = board_evaluation.get_all_white_coords(current_board)
+
+            test_all_black_coords = board_evaluation.get_all_black_coords(current_board)
+
+            new_board = revert_test_move(move, new_board, board_coord, next_piece)
+            
+            with open('./game_database/game_flags.json', 'r') as flags:
+                data=flags.read()
+
+            game_flags = json.loads(data)
+
+            en_passant_flag = game_flags['en_passant_flag']
+            
+            if turn == "white":
+
+                attacks_on_opp_pieces = [i for i in piece_attacks if i in all_black_coords]
+
+                if current_piece == "wp":
+
+                    if en_passant_flag in piece_attacks:
+
+                        attacks_on_opp_pieces.append(en_passant_flag)
+               
+            if turn == "black":
+
+                attacks_on_opp_pieces = [i for i in piece_attacks if i in all_white_coords]
+                
+                if current_piece == "bp":
+
+                    if en_passant_flag in piece_attacks:
+
+                        attacks_on_opp_pieces.append(en_passant_flag)
+
+            print("All white attacks:  " + str(test_all_white_attacks))
+            print("All white coords:  " + str(test_all_white_coords))
+            
+            print("All black attacks:  " + str(test_all_black_attacks))
+            print("All black coords:  " + str(test_all_black_coords))
+
+            print("White king coord  " + str(test_white_king_coord))
+            print("Black king coord  " + str(test_black_king_coord))
 
             # for i in range(len(current_board)):
 
             #     print(current_board[i])
             #     print("\n")
             
-            if (turn == "white" and (white_king_coord in all_black_attacks)) :
+            if (turn == "white" and (test_white_king_coord in test_all_black_attacks)) :
 
                 return 5
 
-            elif (turn == "black" and (black_king_coord in all_white_attacks)):
+            elif (turn == "black" and (test_black_king_coord in test_all_white_attacks)):
 
                 return 6
 
-            elif ((next_position not in piece_moves) and (next_position not in piece_attacks)):
+            elif ((next_position not in piece_moves) and (next_position not in attacks_on_opp_pieces)):
 
                 return 7
 
-            elif ((next_position in piece_attacks) and is_your_piece(next_position, turn, current_board)):
-                        
+            # elif ((next_position in piece_attacks) and is_your_piece(next_position, turn, current_board)):
+                 
+            #     return 8                        
 
-                return 8
+            # elif (current_piece == "wp") and next_position[0] = 7
 
             else:
 
+                add_en_passant_moves(game_flags, current_position, current_piece, next_position)
+                
+                with open("./game_database/game_flags.json", "w") as outfile:  
+                    json.dump(game_flags, outfile) 
+
                 return 3                
+                          
         else:
             
             return 4           
 
-def input_move_white(player_white, board_coord, turn, current_board):
-
-    print("\n")
-    print("White moves:")
-        
-    #RECURENTA!    
-     
-    print("What is your move, " + player_white + "?" +" (example: 'e2 e4')")
-       
-    move = input()
-        
-    move = str(move)  
-
-    check_move = is_move_valid(move, board_coord, turn, current_board)
-
-    print("Check move: " + str(check_move))
-
-    if check_move == 0:
-            
-        print("Completely wrong input, please try again\n")
-        
-        final_move = input_move_white(player_white, board_coord, turn, current_board)
-
-    elif check_move == 1:
-            
-        print("The square you want to move from is not a valid squre, please try again\n")
-
-        final_move = input_move_white(player_white, board_coord, turn, current_board)
-
-    elif check_move == 2:
-
-        print("The square you want to move to is not a valid squre, please try again\n")
-        
-        final_move = input_move_white(player_white, board_coord, turn, current_board)
-
-    elif check_move == 4:
-
-        print("You did not select your piece, please try again\n")
-        
-        final_move = input_move_white(player_white, board_coord, turn, current_board)
-
-    elif (check_move==5 or check_move==6 or check_move==7 or check_move==8):
-
-        print("Illegal move, please try again\n")
-        
-        final_move = input_move_white(player_white, board_coord, turn, current_board)
-
-    elif check_move == 3:
-        
-        final_move = move
-             
-    return final_move 
-
-
-def input_move_black(player_black,  board_coord, turn, current_board):
-
-    print("\n")
-    print("Black moves:")
-        
-    #RECURENTA!    
-     
-    print("What is your move, " + player_black + "?" +" (example: 'e2 e4')")
-       
-    move = input()
-        
-    move = str(move)  
-
-    check_move = is_move_valid(move, board_coord, turn, current_board)
-
-    print("Check move: " + str(check_move))
-
-    if check_move == 0:
-            
-        print("Completely wrong input, please try again\n")
-        
-        final_move = input_move_black(player_black,  board_coord, turn, current_board)
-
-    elif check_move == 1:
-            
-        print("The square you want to move from is not a valid squre, please try again\n")
-
-        final_move = input_move_black(player_black,  board_coord, turn, current_board)
-
-    elif check_move == 2:
-
-        print("The square you want to move to is not a valid squre, please try again\n")
-        
-        final_move = input_move_black(player_black,  board_coord, turn, current_board)
-
-    elif check_move == 4:
-
-        print("You did not select your piece, please try again\n")
-        
-        final_move = input_move_white(player_black, board_coord, turn, current_board)
-
-    elif (check_move==5 or check_move==6 or check_move==7 or check_move==8):
-
-        print("Illegal move, please try again\n")
-        
-        final_move = input_move_white(player_black, board_coord, turn, current_board)
-
-    elif check_move == 3:
-        
-        final_move = move
-             
-    return final_move 
-    
-
-#     return True
-
-# def is_your_piece(move):
 

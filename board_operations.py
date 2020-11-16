@@ -145,12 +145,12 @@ def make_move(move, current_board):
 
 board_test = [
     ["white_00", "black_00", "white_00", "black_00", "white_00", "black_00", "white_00", "black_00"],
-    ["black_00", "white_00", "black_00", "white_00", "black_00", "white_00", "black_00", "white_00"],
+    ["black_00", "white_00", "black_00", "white_wp", "black_00", "white_00", "black_00", "white_00"],
     ["white_00", "black_00", "white_00", "black_00", "white_00", "black_00", "white_00", "black_00"],
     ["black_00", "white_00", "black_00", "white_00", "black_00", "white_00", "black_bp", "white_00"],   
-    ["white_00", "black_00", "white_00", "black_00", "white_bp", "black_00", "white_00", "black_00"],
+    ["white_00", "black_00", "white_00", "black_00", "white_bp", "black_00", "white_00", "black_bp"],
     ["black_00", "white_bp", "black_00", "white_00", "black_wp", "white_bp", "black_00", "white_00"],
-    ["white_bp", "black_00", "white_bk", "black_00", "white_00", "black_wp", "white_wp", "black_00"],
+    ["white_bp", "black_00", "white_bk", "black_00", "white_00", "black_wp", "white_bp", "black_00"],
     ["black_wk", "white_00", "black_00", "white_00", "black_00", "white_wh", "black_00", "white_br"],
 ]   
 

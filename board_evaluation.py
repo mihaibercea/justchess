@@ -2,6 +2,12 @@ import move_check
 import pieces
 import board_operations
 
+# def get_pgn_game(turn, turn_count):
+
+#     all_moves = []
+
+#     return all_moves
+
 def get_all_white_coords(current_board):
 
     white_coords = []
@@ -582,7 +588,7 @@ def opponent_has_no_legal_moves(turn, current_board):
             
             elif this_current_piece == "bp":
                 
-                pawn_attacks = move_check.get_current_piece_moves(pos, current_board)
+                pawn_attacks = move_check.get_current_piece_attacks(pos, current_board)
 
                 valid_attacks = [pos for pos in all_white_coords if pos in pawn_attacks]
 
@@ -655,7 +661,7 @@ def opponent_has_no_legal_moves(turn, current_board):
             
             elif this_current_piece == "wp":
                 
-                pawn_attacks = move_check.get_current_piece_moves(pos, current_board)
+                pawn_attacks = move_check.get_current_piece_attacks(pos, current_board)
 
                 valid_attacks = [pos for pos in all_black_coords if pos in pawn_attacks]
 
