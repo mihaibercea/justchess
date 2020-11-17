@@ -267,10 +267,11 @@ def standardGame():
     pgn_game = {}
 
     game_flags['en_passant_flag'] = []
-    game_flags['0-0_flag_white'] = []
-    game_flags['0-0-0_flag_white'] = []    
-    game_flags['0-0_flag_black'] = []
-    game_flags['0-0-0_flag_black'] = []    
+    game_flags['0-0_flag_white'] = 0
+    game_flags['0-0-0_flag_white'] = 0
+    game_flags['0-0_flag_black'] = 0
+    game_flags['0-0-0_flag_black'] = 0
+    game_flags['castling'] = "none"
 
     with open("./game_database/current_game.json", "w") as outfile:  
         json.dump(pgn_game, outfile) 

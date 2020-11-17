@@ -1,4 +1,6 @@
 import pieces
+import move_check
+import json
 
 white_pawn = pieces.piece("white", "pawn")
 white_horse = pieces.piece("white", "horse")
@@ -126,32 +128,66 @@ def find_current_piece(move, current_board):
 
 def make_move(move, current_board):
 
+
     move = move.split(" ")
-    
+        
     i = find_move_coord(move[0])[0]
     j = find_move_coord(move[0])[1]
 
     current_piece = current_board[i][j].split("_")[1]
 
-    current_board[i][j] = purge_cell(current_board[i][j])
+    with open('./game_database/game_flags.json', 'r') as flags:
+        data=flags.read()
 
-    x = find_move_coord(move[1])[0]
-    y = find_move_coord(move[1])[1]
+    game_flags = json.loads(data)
+    
+    castling = game_flags['castling']
 
-    current_board[x][y] = fill_cell(current_board[x][y], current_piece)
+    if castling == "wshort":
+        current_board[7][4] = purge_cell(current_board[7][4])
+        current_board[7][7] = purge_cell(current_board[7][7])
+        current_board[7][6] = fill_cell(current_board[7][6], 'wk')
+        current_board[7][5] = fill_cell(current_board[7][6], 'wr')
+
+    elif castling == "wlong":
+        current_board[7][4] = purge_cell(current_board[7][4])
+        current_board[7][0] = purge_cell(current_board[7][0])
+        current_board[7][2] = fill_cell(current_board[7][2], 'wk')
+        current_board[7][3] = fill_cell(current_board[7][3], 'wr')
+
+    elif castling == "bshort":
+        current_board[0][4] = purge_cell(current_board[0][4])
+        current_board[0][7] = purge_cell(current_board[0][7])
+        current_board[0][6] = fill_cell(current_board[0][6], 'bk')
+        current_board[0][5] = fill_cell(current_board[0][6], 'br')
+
+    elif castling == "blong":
+        current_board[0][4] = purge_cell(current_board[0][4])
+        current_board[0][0] = purge_cell(current_board[0][0])
+        current_board[0][2] = fill_cell(current_board[0][2], 'bk')
+        current_board[0][3] = fill_cell(current_board[0][3], 'br')
+
+    else:
+
+        current_board[i][j] = purge_cell(current_board[i][j])
+
+        x = find_move_coord(move[1])[0]
+        y = find_move_coord(move[1])[1]
+
+        current_board[x][y] = fill_cell(current_board[x][y], current_piece)
 
     return current_board
 
 
 board_test = [
+    ["white_br", "black_bh", "white_bb", "black_bq", "white_bk", "black_00", "white_00", "black_br"],
+    ["black_bp", "white_bp", "black_bp", "white_bp", "black_00", "white_bp", "black_bp", "white_bp"],
     ["white_00", "black_00", "white_00", "black_00", "white_00", "black_00", "white_00", "black_00"],
-    ["black_00", "white_00", "black_00", "white_wp", "black_00", "white_00", "black_00", "white_00"],
-    ["white_00", "black_00", "white_00", "black_00", "white_00", "black_00", "white_00", "black_00"],
-    ["black_00", "white_00", "black_00", "white_00", "black_00", "white_00", "black_bp", "white_00"],   
-    ["white_00", "black_00", "white_00", "black_00", "white_bp", "black_00", "white_00", "black_bp"],
-    ["black_00", "white_bp", "black_00", "white_00", "black_wp", "white_bp", "black_00", "white_00"],
-    ["white_bp", "black_00", "white_bk", "black_00", "white_00", "black_wp", "white_bp", "black_00"],
-    ["black_wk", "white_00", "black_00", "white_00", "black_00", "white_wh", "black_00", "white_br"],
+    ["black_00", "white_00", "black_00", "white_00", "black_bp", "white_00", "black_00", "white_00"],   
+    ["white_00", "black_00", "white_00", "black_00", "white_wp", "black_00", "white_00", "black_00"],
+    ["black_00", "white_00", "black_00", "white_00", "black_00", "white_00", "black_00", "white_00"],
+    ["white_wp", "black_wp", "white_wp", "black_00", "white_00", "black_wp", "white_wp", "black_wp"],
+    ["black_wr", "white_wh", "black_wb", "white_wq", "black_wk", "white_00", "black_00", "white_wr"],
 ]   
 
 def test_board():

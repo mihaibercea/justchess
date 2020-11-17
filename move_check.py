@@ -303,9 +303,9 @@ def revert_test_move(move, new_board, board_coord, next_piece):
 
 def add_en_passant_moves(test_pgn_game, current_position, current_piece, next_position):
 
-    if current_piece == "wp":
+    en_passant_flag = []
 
-        en_passant_flag = []
+    if current_piece == "wp":       
 
         if ((current_position[0] == 6) and next_position[0] == 4):
 
@@ -317,9 +317,7 @@ def add_en_passant_moves(test_pgn_game, current_position, current_piece, next_po
             with open("./game_database/game_flags.json", "w") as outfile:  
                 json.dump(test_pgn_game, outfile) 
 
-    elif current_piece == "bp":
-
-        en_passant_flag = []
+    elif current_piece == "bp":        
 
         if ((current_position[0] == 1) and next_position[0] == 3):
 
@@ -343,6 +341,7 @@ def promote(current_piece):
 
     p_piece = input()
     p_piece = str(p_piece)
+    p_piece = p_piece.lower()
     valid_pieces = "prhbq"
 
     length_check = 0
@@ -372,7 +371,170 @@ def promote(current_piece):
         promoted_piece = promoted_piece + p_piece
 
         return promoted_piece
+
+def check_castling_flags(current_piece, current_position, game_flags):
+
+    if current_piece == "wk":
+        game_flags['0-0-0_flag_white'] = 1
+        game_flags['0-0_flag_white'] = 1
+
+    elif current_piece == "wr" and current_position == [7, 0]:
+        game_flags['0-0-0_flag_white'] = 1
     
+    elif current_piece == "wr" and current_position == [7, 7]: 
+        game_flags['0-0_flag_white'] = 1
+
+    elif current_piece == "bk":
+        game_flags['0-0-0_flag_black'] = 1
+        game_flags['0-0_flag_black'] = 1
+
+    elif current_piece == "br" and current_position == [0, 0]:
+        game_flags['0-0-0_flag_black'] = 1
+    
+    elif current_piece == "br" and current_position == [0, 7]: 
+        game_flags['0-0_flag_black'] = 1
+    
+
+def check_castling(white_king_coord, black_king_coord, game_flags, current_piece, next_position, all_black_attacks, all_white_attacks, all_black_coords, all_white_coords):
+
+    castling_short_white_flag = game_flags['0-0_flag_white']
+    castling_long_white_flag  = game_flags['0-0-0_flag_white']
+    castling_short_black_flag  = game_flags['0-0_flag_black']
+    castling_long_black_flag  = game_flags['0-0-0_flag_black']
+
+    white_short_castle_check = [[7, 4], [7, 5], [7, 6]]
+    white_short_castle_path = [[7, 5], [7, 6]]
+    white_short_castle_coord = [7, 6]
+
+    white_long_castle_check = [[7, 2], [7, 3], [7, 4]]
+    white_long_castle_path = [[7, 2], [7, 3]]
+    white_long_castle_coord = [7, 2]
+
+    black_short_castle_check = [[0, 4], [0, 5], [0, 6]]
+    black_short_castle_path = [[0, 5], [0, 6]]
+    black_short_castle_coord = [0, 6]
+
+    black_long_castle_check = [[0, 2], [0, 3], [0, 4]]
+    black_long_castle_path = [[0, 2], [0, 3]]
+    black_long_castle_coord = [0, 2]
+
+    castling = "none"
+
+    if current_piece == "wk" and white_king_coord == [7, 4]:
+
+        if next_position == white_short_castle_coord:
+
+            if castling_short_white_flag == 0:
+
+                check_black_attacks = 0
+                check_pieces_black = 0
+                check_pieces_white = 0
+
+                for i in white_short_castle_check:
+                    if i in all_black_attacks:
+                        check_black_attacks = 1                        
+                for i in white_short_castle_path:
+                    if i in all_white_coords:
+                        check_pieces_white = 1                        
+                    if i in all_black_coords:
+                        check_pieces_black = 1                        
+        
+                if check_black_attacks == 0 and check_pieces_black == 0 and check_pieces_white == 0:
+                    
+                    castling = "wshort"
+                
+                else:
+                    castling = "illegal"
+
+            else:
+                castling = "illegal"
+
+        elif next_position == white_long_castle_coord:
+
+            if castling_long_white_flag == 0:
+
+                check_black_attacks = 0
+                check_pieces_black = 0
+                check_pieces_white = 0
+
+                for i in white_long_castle_check:
+                    if i in all_black_attacks:
+                        check_black_attacks = 1
+                for i in white_long_castle_path:                        
+                    if i in all_white_coords:
+                        check_pieces_white = 1                        
+                    if i in all_black_coords:
+                        check_pieces_black = 1                        
+        
+                if check_black_attacks == 0 and check_pieces_black == 0 and check_pieces_white == 0:
+                    
+                    castling = "wlong"
+
+                else:
+                    castling = "illegal"
+
+            else:
+                castling = "illegal"
+
+    if current_piece == "bk" and black_king_coord == [0, 4]:
+
+        if next_position == black_short_castle_coord:
+
+            if castling_short_black_flag == 0:
+
+                check_white_attacks = 0
+                check_pieces_black = 0
+                check_pieces_white = 0
+
+                for i in black_short_castle_check:
+                    if i in all_white_attacks:
+                        check_white_attacks = 1
+                for i in black_short_castle_path:                    
+                    if i in all_white_coords:
+                        check_pieces_white = 1                        
+                    if i in all_black_coords:
+                        check_pieces_black = 1                        
+        
+                if check_white_attacks == 0 and check_pieces_black == 0 and check_pieces_white == 0:
+                    
+                    castling = "bshort"
+
+                else:
+                    castling = "illegal"
+
+            else:
+                castling = "illegal"
+
+        elif next_position == black_long_castle_coord:
+
+            if castling_long_black_flag == 0:
+
+                check_white_attacks = 0
+                check_pieces_black = 0
+                check_pieces_white = 0
+
+                for i in black_long_castle_check:
+                    if i in all_white_attacks:
+                        check_white_attacks = 1
+                for i in black_long_castle_path:                        
+                    if i in all_white_coords:
+                        check_pieces_white = 1                        
+                    if i in all_black_coords:
+                        check_pieces_black = 1                        
+        
+                if check_black_attacks == 0 and check_pieces_black == 0 and check_pieces_white == 0:
+                    
+                    castling = "blong"
+                
+                else:
+                    castling = "illegal"
+            
+            else:
+                castling = "illegal"
+
+    return castling
+
+
 def is_move_valid(move, board_coord, turn, current_board):
 
     len_check = 0
@@ -426,17 +588,17 @@ def is_move_valid(move, board_coord, turn, current_board):
     if len_check == 1 and space_check == 1 and first_check == 1 and  second_check == 1:
 
         current_position = piece_from_coord(move, board_coord)
-
-        next_position = piece_to_coord(move, board_coord)
-
-        current_piece = find_current_piece(current_position, current_board)
-
-        next_piece = find_current_piece(next_position, current_board)
-
-        print("next pos" + str(next_position))
-
+        
         if is_your_piece(current_position, turn, current_board):
-                        
+            
+            next_position = piece_to_coord(move, board_coord)
+
+            current_piece = find_current_piece(current_position, current_board)
+
+            next_piece = find_current_piece(next_position, current_board)
+
+            print("next pos" + str(next_position))
+                                    
             piece_moves = get_current_piece_moves(current_position, current_board)
 
             piece_attacks = get_current_piece_attacks(current_position, current_board)
@@ -509,6 +671,8 @@ def is_move_valid(move, board_coord, turn, current_board):
 
             new_board = revert_test_move(move, new_board, board_coord, next_piece)
             
+            # Loading game flags
+
             with open('./game_database/game_flags.json', 'r') as flags:
                 data=flags.read()
 
@@ -516,7 +680,11 @@ def is_move_valid(move, board_coord, turn, current_board):
 
             en_passant_flag = game_flags['en_passant_flag']
             
+            castling = check_castling(white_king_coord, black_king_coord, game_flags, current_piece, next_position, all_black_attacks, all_white_attacks, all_black_coords, all_white_coords)
+           
             if turn == "white":
+
+                # Checking en passant for white
 
                 attacks_on_opp_pieces = [i for i in piece_attacks if i in all_black_coords]
 
@@ -525,8 +693,13 @@ def is_move_valid(move, board_coord, turn, current_board):
                     if en_passant_flag in piece_attacks:
 
                         attacks_on_opp_pieces.append(en_passant_flag)
-               
+                
+                # Check casling for white             
+                      
+
             if turn == "black":
+                
+                # Checking en passant for white
 
                 attacks_on_opp_pieces = [i for i in piece_attacks if i in all_white_coords]
                 
@@ -549,7 +722,10 @@ def is_move_valid(move, board_coord, turn, current_board):
 
             #     print(current_board[i])
             #     print("\n")
-            
+              
+
+#!!!! Problem with castling
+
             if (turn == "white" and (test_white_king_coord in test_all_black_attacks)) :
 
                 return 5
@@ -557,6 +733,19 @@ def is_move_valid(move, board_coord, turn, current_board):
             elif (turn == "black" and (test_black_king_coord in test_all_white_attacks)):
 
                 return 6
+
+            elif castling != "illegal" and castling != "none":
+
+                game_flags['castling'] = castling
+
+                add_en_passant_moves(game_flags, current_position, current_piece, next_position)
+
+                check_castling_flags(current_piece, current_position, game_flags)                               
+                
+                with open("./game_database/game_flags.json", "w") as outfile:  
+                    json.dump(game_flags, outfile) 
+
+                return 3        
 
             elif ((next_position not in piece_moves) and (next_position not in attacks_on_opp_pieces)):
 
@@ -568,9 +757,17 @@ def is_move_valid(move, board_coord, turn, current_board):
 
             # elif (current_piece == "wp") and next_position[0] = 7
 
+            elif castling == "illegal":
+                
+                return 8
+
             else:
 
+                game_flags['castling'] = castling
+
                 add_en_passant_moves(game_flags, current_position, current_piece, next_position)
+
+                check_castling_flags(current_piece, current_position, game_flags)                               
                 
                 with open("./game_database/game_flags.json", "w") as outfile:  
                     json.dump(game_flags, outfile) 
