@@ -208,7 +208,7 @@ def get_pgn_game(pgn_game, move, turn, turn_count, turn_move):
 
 def standardGame():
 
-    current_board = board_operations.test_board()
+    current_board = board_operations.classic_board()
     print("The game has begun!\n")
 
     player_white = ""
