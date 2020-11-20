@@ -142,6 +142,8 @@ def make_move(move, current_board):
     game_flags = json.loads(data)
     
     castling = game_flags['castling']
+    en_passant_flag = game_flags['en_passant_flag']
+    en_passant_flagged = game_flags['en_passant_flagged']
 
     if castling == "wshort":
         current_board[7][4] = purge_cell(current_board[7][4])
@@ -173,6 +175,14 @@ def make_move(move, current_board):
 
         x = find_move_coord(move[1])[0]
         y = find_move_coord(move[1])[1]
+
+        if len(en_passant_flag) == 2:
+
+            if en_passant_flag[0] == x and en_passant_flag[1] == y:
+                pawn_x = en_passant_flagged[0]
+                pawn_y = en_passant_flagged[1]
+
+                current_board[pawn_x][pawn_x] = purge_cell(current_board[pawn_x][pawn_y])
 
         current_board[x][y] = fill_cell(current_board[x][y], current_piece)
 

@@ -269,7 +269,7 @@ def target_not_your_piece(next_position, turn, current_board):
         else:
             return True
 
-def make_test_move(move, new_board, board_coord):
+def make_test_move(move, new_board, board_coord, en_passant_flagged, en_passant_flag):
         
     i = piece_from_coord(move, board_coord)[0]
     j = piece_from_coord(move, board_coord)[1]
@@ -280,6 +280,17 @@ def make_test_move(move, new_board, board_coord):
 
     x = piece_to_coord(move, board_coord)[0]
     y = piece_to_coord(move, board_coord)[1]
+
+    if len(en_passant_flag) == 2:
+
+        if en_passant_flag[0] == x and en_passant_flag[1] == y:
+            pawn_x = en_passant_flagged[0]
+            pawn_y = en_passant_flagged[1]
+
+            new_board[pawn_x][pawn_y] = purge_cell(new_board[pawn_x][pawn_y])
+
+    new_board[x][y] = fill_cell(new_board[x][y], current_piece)
+    
 
     new_board[x][y] = fill_cell(new_board[x][y], current_piece)
 
@@ -313,6 +324,7 @@ def add_en_passant_moves(test_pgn_game, current_position, current_piece, next_po
             en_passant_flag.append(current_position[1])
 
             test_pgn_game['en_passant_flag'] = en_passant_flag
+            test_pgn_game['en_passant_flagged'] = next_position
 
             with open("./game_database/game_flags.json", "w") as outfile:  
                 json.dump(test_pgn_game, outfile) 
@@ -325,6 +337,7 @@ def add_en_passant_moves(test_pgn_game, current_position, current_piece, next_po
             en_passant_flag.append(current_position[1])
 
             test_pgn_game['en_passant_flag'] = en_passant_flag
+            test_pgn_game['en_passant_flagged'] = next_position
 
             with open("./game_database/game_flags.json", "w") as outfile:  
                 json.dump(test_pgn_game, outfile) 
@@ -640,9 +653,20 @@ def is_move_valid(move, board_coord, turn, current_board):
 
                     promoted = 1
 
+            with open('./game_database/game_flags.json', 'r') as flags:
+                data=flags.read()
+
+            game_flags = json.loads(data)
+
+            en_passant_flag = game_flags['en_passant_flag']
+
+            en_passant_flagged = game_flags['en_passant_flagged']
+
+            castling = check_castling(white_king_coord, black_king_coord, game_flags, current_piece, next_position, all_black_attacks, all_white_attacks, all_black_coords, all_white_coords)
+           
             new_board = current_board
 
-            new_board = make_test_move(move, new_board, board_coord)
+            new_board = make_test_move(move, new_board, board_coord, en_passant_flagged, en_passant_flag)
 
             if promoted == 1:
                 
@@ -673,15 +697,7 @@ def is_move_valid(move, board_coord, turn, current_board):
             
             # Loading game flags
 
-            with open('./game_database/game_flags.json', 'r') as flags:
-                data=flags.read()
 
-            game_flags = json.loads(data)
-
-            en_passant_flag = game_flags['en_passant_flag']
-            
-            castling = check_castling(white_king_coord, black_king_coord, game_flags, current_piece, next_position, all_black_attacks, all_white_attacks, all_black_coords, all_white_coords)
-           
             if turn == "white":
 
                 # Checking en passant for white

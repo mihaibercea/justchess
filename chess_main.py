@@ -267,6 +267,7 @@ def standardGame():
     pgn_game = {}
 
     game_flags['en_passant_flag'] = []
+    game_flags['en_passant_flagged'] = []
     game_flags['0-0_flag_white'] = 0
     game_flags['0-0-0_flag_white'] = 0
     game_flags['0-0_flag_black'] = 0
