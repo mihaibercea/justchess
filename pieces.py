@@ -1,4 +1,6 @@
 
+# defines piece attacks and moves on the board.
+
 import move_check
 import board_evaluation
 
@@ -53,7 +55,7 @@ class white_pawn():
 
             return good_moves              
         
-        print(current_position)
+        #print(current_position)
 
         if current_position[0] == 6:
 
@@ -140,7 +142,7 @@ class white_rook():
 
             return good_moves
         
-        print(current_position)
+        #print(current_position)
 
         i = current_position[0]
         j = current_position[1]
@@ -292,7 +294,7 @@ class white_bishop():
 
             return good_moves
 
-        print(current_position)
+        #print(current_position)
 
         i = current_position[0]
         j = current_position[1]
@@ -428,7 +430,7 @@ class white_horse():
         all_white_coords = board_evaluation.get_all_white_coords(current_board)
         # all_black_coords = board_evaluation.get_all_black_coords(current_board)
 
-        print(current_position)
+        #print(current_position)
 
         i = current_position[0]
         j = current_position[1]
@@ -484,7 +486,7 @@ class white_queen():
             return good_moves
 
        
-        print(current_position)
+        #print(current_position)
 
         i = current_position[0]
         j = current_position[1]
@@ -717,10 +719,11 @@ class white_king():
 
             return good_moves
 
-        print(current_position)
+        #print(current_position)
 
         all_white_coords = board_evaluation.get_all_white_coords(current_board)
-        all_black_coords = board_evaluation.get_all_black_coords(current_board)
+        
+        #all_black_attacks = board_evaluation.get_all_black_attacks(current_board)
         
         i = current_position[0]
         j = current_position[1]
@@ -739,15 +742,17 @@ class white_king():
         }
 
         available_moves = list(available_moves_dict.values())
-               
-        
-        
+
+                
         available_moves = check_if_offboard(available_moves)
         
-        available_moves_final = [i for i in available_moves if i not in all_white_coords]
-             
-        return available_moves_final               
+        available_moves_1 = [i for i in available_moves if i not in all_white_coords]
 
+        #available_moves_final = [i for i in available_moves_1 if i not in all_black_attacks]
+
+        #print("White king can move to: " + str(available_moves_1))
+
+        return available_moves_1              
             
     def get_available_attacks(self, current_position, current_board):
         
@@ -784,7 +789,7 @@ class black_pawn():
 
             return good_moves              
         
-        print(current_position)
+        #print(current_position)
 
         if current_position[0] == 1:
 
@@ -871,7 +876,7 @@ class black_rook():
 
             return good_moves
         
-        print(current_position)
+        #print(current_position)
 
         i = current_position[0]
         j = current_position[1]
@@ -1023,7 +1028,7 @@ class black_bishop():
 
             return good_moves
 
-        print(current_position)
+        #print(current_position)
 
         i = current_position[0]
         j = current_position[1]
@@ -1159,7 +1164,7 @@ class black_horse():
         #all_white_coords = board_evaluation.get_all_white_coords(current_board)
         all_black_coords = board_evaluation.get_all_black_coords(current_board)
 
-        print(current_position)
+        #print(current_position)
 
         i = current_position[0]
         j = current_position[1]
@@ -1215,7 +1220,7 @@ class black_queen():
             return good_moves
 
        
-        print(current_position)
+        #print(current_position)
 
         i = current_position[0]
         j = current_position[1]
@@ -1428,7 +1433,7 @@ class black_queen():
 
 class black_king():
 
-    color = white
+    color = black
     shape = king
 
     def get_available_moves(self, current_position, current_board):
@@ -1448,10 +1453,11 @@ class black_king():
 
             return good_moves
 
-        print(current_position)
+        #print(current_position)
 
-        #all_white_coords = board_evaluation.get_all_white_coords(current_board)
         all_black_coords = board_evaluation.get_all_black_coords(current_board)
+        
+        #all_white_attacks = board_evaluation.get_all_white_attacks(current_board)
         
         i = current_position[0]
         j = current_position[1]
@@ -1470,22 +1476,24 @@ class black_king():
         }
 
         available_moves = list(available_moves_dict.values())
-               
-        
-        
+
+                
         available_moves = check_if_offboard(available_moves)
         
-        available_moves_final = [i for i in available_moves if i not in all_black_coords]
-             
-        return available_moves_final               
+        available_moves_1 = [i for i in available_moves if i not in all_black_coords]
 
+        #available_moves_final = [i for i in available_moves_1 if i not in all_white_attacks]
+
+        #print("Black king can move to: " + str(available_moves_1))
+
+        return available_moves_1              
             
     def get_available_attacks(self, current_position, current_board):
         
         available_attacks = self.get_available_moves(current_position, current_board)
         
         return available_attacks
-
+    
 
 # def get_avaialbe_moves(move, current_board, board_coord):
 

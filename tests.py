@@ -38,28 +38,59 @@
 
 #     return coord
 
-# print(find_move_coord(move))
+# # print(find_move_coord(move))
 
-mylist = ["a", "b", "a", "c", "c"]
-mylist = dict.fromkeys(mylist)
-print(mylist)
+# mylist = ["a", "b", "a", "c", "c"]
+# mylist = dict.fromkeys(mylist)
+# print(mylist)
 
 
-# Python 3 code to demonstrate 
-# removing duplicated from list 
-# using naive methods 
+# # Python 3 code to demonstrate 
+# # removing duplicated from list 
+# # using naive methods 
 
-# initializing list 
-test_list = [1, 3, 5, 6, 3, 5, 6, 1] 
-print ("The original list is : " + str(test_list)) 
+# # initializing list 
+# test_list = [1, 3, 5, 6, 3, 5, 6, 1] 
+# print ("The original list is : " + str(test_list)) 
 
-# using naive method 
-# to remove duplicated 
-# from list 
-res = [] 
-for i in test_list: 
-	if i not in res: 
-		res.append(i) 
+# # using naive method 
+# # to remove duplicated 
+# # from list 
+# res = [] 
+# for i in test_list: 
+# 	if i not in res: 
+# 		res.append(i) 
 
-# printing list after removal 
-print ("The list after removing duplicates : " + str(res)) 
+# # printing list after removal 
+# print ("The list after removing duplicates : " + str(res)) 
+
+Dict = {1: 'Geeks', 2: 'For', 3: 'Geeks'} 
+Dict[1] = Dict[1] + " for geeks"
+
+print(Dict)
+
+print("Pick your promoted piece. Please type one of the following:\n 'p' for pawn; 'r' for rook, 'h' for horse, 'b' for bishop or 'q' for queen:\n")
+
+promoted_piece = input()
+promoted_piece = str(promoted_piece)
+valid_pieces = "prhbq"
+
+length_check = 0
+piece_check = 0
+    
+if len(promoted_piece) == 1:
+    length_check = 1
+    
+    if promoted_piece in valid_pieces:
+
+            piece_check = 1
+    
+    else:
+        piece_check = 0
+
+else:
+    length_check == 0
+                
+if length_check == 1 and piece_check == 1:
+
+    print(promoted_piece)

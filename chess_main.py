@@ -6,13 +6,13 @@
 import random
 import string
 import math
-import numpy
+#import numpy
 import win_condition
 import move_check
 import pieces
-
-# Add a class for pieces
-# Add a class for each 
+import board_evaluation
+import board_operations
+import json
 
    
 board = [
@@ -52,20 +52,6 @@ board_coord_assigned = {
 
     }
 
-# class piece:
-
-#     color = "color"
-#     shape = "shape"
-
-#     def __init__(self, color, shape): 
-#         self.color = color
-#         self.shape = shape
-
-#     def get_avatar(self):
-
-#         avatar = self.color[0] + self.shape[0]
-
-#         return avatar
 
 white_pawn = pieces.piece("white", "pawn")
 white_horse = pieces.piece("white", "horse")
@@ -81,178 +67,160 @@ black_rook = pieces.piece("black", "rook")
 black_queen = pieces.piece("black", "queen")
 black_king = pieces.piece("black", "king")
 
+def input_move_white(player_white, board_coord, turn, current_board):
 
-def purge_cell(cell):
-    
-    current_cell = cell.split("_")
+    print("\n")
+    print("White moves:")
+        
+    #RECURENTA!    
+     
+    print("What is your move, " + player_white + "?" +" (example: 'e2 e4')")
+       
+    move = input()
+        
+    move = str(move)  
 
-    current_cell = str(current_cell[0]) + "_" + "00"
+    check_move = move_check.is_move_valid(move, board_coord, turn, current_board)
 
-    return current_cell
+    print("Check move: " + str(check_move))
 
-# testing purge:
+    if check_move == 0:
+            
+        print("Completely wrong input, please try again\n")
+        
+        final_move = input_move_white(player_white, board_coord, turn, current_board)
 
-#print(board)
+    elif check_move == 1:
+            
+        print("The square you want to move from is not a valid squre, please try again\n")
 
-board[0][0] = purge_cell(board[0][0])
+        final_move = input_move_white(player_white, board_coord, turn, current_board)
 
-#print(board)
+    elif check_move == 2:
 
-def fill_cell(cell, current_piece):
+        print("The square you want to move to is not a valid squre, please try again\n")
+        
+        final_move = input_move_white(player_white, board_coord, turn, current_board)
 
-    current_cell = cell.split("_")
+    elif check_move == 4:
 
-    current_cell = str(current_cell[0]) + "_" + current_piece
+        print("You did not select your piece, please try again\n")
+        
+        final_move = input_move_white(player_white, board_coord, turn, current_board)
 
-    return current_cell
+    elif (check_move==5 or check_move==6 or check_move==7 or check_move==8):
 
-def find_move_coord(move):
+        print("Illegal move, please try again\n")
+        
+        final_move = input_move_white(player_white, board_coord, turn, current_board)
 
-    coord = []
+    elif check_move == 3:
+        
+        final_move = move
 
-    for i in range(len(board_coord)):
+        # current_position = move_check.piece_from_coord(move, board_coord)
 
-        for j in range(len(board_coord[i])):
+        # next_position = move_check.piece_to_coord(move, board_coord)
 
-            if move == board_coord[i][j]:
+        # current_piece = move_check.find_current_piece(current_position, current_board)
 
-                coord = [i, j]
+        # move_check.check_en_passant_moves(current_position, current_piece, next_position)
+             
+    return final_move 
 
-    return coord
 
-def find_current_piece(move, current_board):
+def input_move_black(player_black,  board_coord, turn, current_board):
 
-    i = find_move_coord(move[0])[0]
-    j = find_move_coord(move[0])[1]
+    print("\n")
+    print("Black moves:")
+        
+    #RECURENTA!    
+     
+    print("What is your move, " + player_black + "?" +" (example: 'e2 e4')")
+       
+    move = input()
+        
+    move = str(move)  
 
-    current_piece = current_board[i][j].split("_")[1]
+    check_move = move_check.is_move_valid(move, board_coord, turn, current_board)
 
-    return current_piece
+    print("Check move: " + str(check_move))
 
-def is_your_piece(move, turn, current_board):
+    if check_move == 0:
+            
+        print("Completely wrong input, please try again\n")
+        
+        final_move = input_move_black(player_black,  board_coord, turn, current_board)
 
-    current_piece = find_current_piece(move, current_board)
+    elif check_move == 1:
+            
+        print("The square you want to move from is not a valid squre, please try again\n")
+
+        final_move = input_move_black(player_black,  board_coord, turn, current_board)
+
+    elif check_move == 2:
+
+        print("The square you want to move to is not a valid squre, please try again\n")
+        
+        final_move = input_move_black(player_black,  board_coord, turn, current_board)
+
+    elif check_move == 4:
+
+        print("You did not select your piece, please try again\n")
+        
+        final_move = input_move_white(player_black, board_coord, turn, current_board)
+
+    elif (check_move==5 or check_move==6 or check_move==7 or check_move==8):
+
+        print("Illegal move, please try again\n")
+        
+        final_move = input_move_white(player_black, board_coord, turn, current_board)
+
+    elif check_move == 3:
+        
+        final_move = move
+
+        # current_position = move_check.piece_from_coord(move, board_coord)
+
+        # next_position = move_check.piece_to_coord(move, board_coord)
+
+        # current_piece = move_check.find_current_piece(current_position, current_board)
+
+        # move_check.check_en_passant_moves(current_position, current_piece, next_position)
+             
+    return final_move 
+
+def get_pgn_game(pgn_game, move, turn, turn_count, turn_move):
     
     if turn == "white":
-        if current_piece[0] == "w":
-            return True
-        else:
-            return False
+                        
+        turn_move.append(move)
+        
+        pgn_game[turn_count] = turn_move
 
     if turn == "black":
-        if current_piece[0] == "b":
-            return True
-        else:
-            return False
 
-#board[0][0] = fill_cell(board[0][0], "zz")
+        turn_move.append(move) 
 
-#print(board[0][0])
+        pgn_game[turn_count] = turn_move             
 
-insufficient_material = 0
-
-# def win_check_white():
-
-#     win = 0
-    
-#     if black_king.legal_move == 0:
-
-#         win = 1
-
-#     return win
-
-# def win_check_black():
-
-#     win = 0
-    
-#     if white_king.legal_move == 0:
-
-#         win = 1
-
-#     return win 
-
-# def check_material(current_board):
-
-#     if insufficient_material:
-
-#         return True
-    
-#     else:
-
-#         return False
-
-# def draw_check(current_board):
-    
-#     draw = 0
-
-#     if check_material(current_board):
-
-#         draw = 1
-
-#     return draw
+    return pgn_game
 
 def standardGame():
 
-    def init_board_standard():
-
-        start_board = board
-
-        for i in range(2, 7):
-            for j in range(len(start_board[i])):
-                start_board[i][j] = "White_00"
-
-        start_board[0][0] = fill_cell(start_board[0][0], black_rook.get_avatar())
-        start_board[0][1] = fill_cell(start_board[0][1], black_horse.get_avatar())
-        start_board[0][2] = fill_cell(start_board[0][2], black_bishop.get_avatar())
-        start_board[0][3] = fill_cell(start_board[0][3], black_queen.get_avatar())
-        start_board[0][4] = fill_cell(start_board[0][4], black_king.get_avatar())
-        start_board[0][5] = fill_cell(start_board[0][5], black_bishop.get_avatar())
-        start_board[0][6] = fill_cell(start_board[0][6], black_horse.get_avatar())
-        start_board[0][7] = fill_cell(start_board[0][7], black_rook.get_avatar())
-
-        start_board[1][0] = fill_cell(start_board[1][0], black_pawn.get_avatar())
-        start_board[1][1] = fill_cell(start_board[1][1], black_pawn.get_avatar())
-        start_board[1][2] = fill_cell(start_board[1][2], black_pawn.get_avatar())
-        start_board[1][3] = fill_cell(start_board[1][3], black_pawn.get_avatar())
-        start_board[1][4] = fill_cell(start_board[1][4], black_pawn.get_avatar())
-        start_board[1][5] = fill_cell(start_board[1][5], black_pawn.get_avatar())
-        start_board[1][6] = fill_cell(start_board[1][6], black_pawn.get_avatar())
-        start_board[1][7] = fill_cell(start_board[1][7], black_pawn.get_avatar())
-
-        start_board[6][0] = fill_cell(start_board[1][0], white_pawn.get_avatar())
-        start_board[6][1] = fill_cell(start_board[1][1], white_pawn.get_avatar())
-        start_board[6][2] = fill_cell(start_board[1][2], white_pawn.get_avatar())
-        start_board[6][3] = fill_cell(start_board[1][3], white_pawn.get_avatar())
-        start_board[6][4] = fill_cell(start_board[1][4], white_pawn.get_avatar())
-        start_board[6][5] = fill_cell(start_board[1][5], white_pawn.get_avatar())
-        start_board[6][6] = fill_cell(start_board[1][6], white_pawn.get_avatar())
-        start_board[6][7] = fill_cell(start_board[1][7], white_pawn.get_avatar())
-
-        start_board[7][0] = fill_cell(start_board[0][0], white_rook.get_avatar())
-        start_board[7][1] = fill_cell(start_board[0][1], white_horse.get_avatar())
-        start_board[7][2] = fill_cell(start_board[0][2], white_bishop.get_avatar())
-        start_board[7][3] = fill_cell(start_board[0][3], white_queen.get_avatar())
-        start_board[7][4] = fill_cell(start_board[0][4], white_king.get_avatar())
-        start_board[7][5] = fill_cell(start_board[0][5], white_bishop.get_avatar())
-        start_board[7][6] = fill_cell(start_board[0][6], white_horse.get_avatar())
-        start_board[7][7] = fill_cell(start_board[0][7], white_rook.get_avatar())
-        
-        return start_board
-
-    current_board = init_board_standard()
-
-    print("Jocul a inceput, spartilor!\n")
+    current_board = board_operations.classic_board()
+    print("The game has begun!\n")
 
     player_white = ""
     player_black = ""
 
-    print("Cine pula mea joaca cu albele\n?")
+    print("Who plays white\n?")
 
     player_white = input()
 
     player_white = str(player_white)
     
-    print("Cu negrele?\n?")
+    print("Who plays black?\n?")
 
     player_black = input()
 
@@ -260,7 +228,7 @@ def standardGame():
 
     def show_board_status(current_board):
 
-        print("In coltul Negrelor: " + player_black)
+        print("In the black corner: " + player_black)
         print("\n")
 
         for i in range(len(current_board)):
@@ -268,75 +236,127 @@ def standardGame():
             print(current_board[i])
             print("\n")
         
-        print("In coltul Albelor: " + player_white)
+        print("In the white corner: " + player_white)
         print("\n")
 
     show_board_status(current_board)
 
     turn = "white"
 
-    def check_turn(turn):
+    # def check_turn(turn):
         
-        if turn == "white":
-            turn == "black"
+    #     if turn == "white":
+    #         turn == "black"
         
-        elif turn == "black":
-            turn == "white"
+    #     elif turn == "black":
+    #         turn == "white"
         
-        return turn
+    #     return turn
     
     # while win_check_white() != 0 and win_check_black() != 0:
 
-    count = 0 
-
+    
     #while win condition not completed
+    
+    all_moves = []
 
-    while count < 10:
-                
+    turn_count = 1    
+
+    game_flags = {}
+
+    pgn_game = {}
+
+    game_flags['en_passant_flag'] = []
+    game_flags['0-0_flag_white'] = 0
+    game_flags['0-0-0_flag_white'] = 0
+    game_flags['0-0_flag_black'] = 0
+    game_flags['0-0-0_flag_black'] = 0
+    game_flags['castling'] = "none"
+
+    with open("./game_database/current_game.json", "w") as outfile:  
+        json.dump(pgn_game, outfile) 
+
+    with open("./game_database/game_flags.json", "w") as outfile:  
+        json.dump(game_flags, outfile) 
+
+    while turn_count<200:             
+        
         if turn == "white":
 
-            move = move_check.input_move_white(player_white, board_coord, turn, current_board)
+            turn_move = []    
 
-            move = move.split(" ")
-          
-            i = find_move_coord(move[0])[0]
-            j = find_move_coord(move[0])[1]
+            move = input_move_white(player_white, board_coord, turn, current_board)
+                        
+            pgn_game = get_pgn_game(pgn_game, move, turn, turn_count, turn_move)
 
-            current_piece = current_board[i][j].split("_")[1]
+            with open("./game_database/current_game.json", "w") as outfile:  
+                json.dump(pgn_game, outfile) 
+            
+            # turn_move.append(move)
+            
+            # pgn_game[turn_count] = turn_move
 
-            current_board[i][j] = purge_cell(current_board[i][j])
+            current_board = board_operations.make_move(move, current_board)
 
-            x = find_move_coord(move[1])[0]
-            y = find_move_coord(move[1])[1]
+            black_king_coord = board_evaluation.get_black_king_coord(current_board)
 
-            current_board[x][y] = fill_cell(current_board[x][y], current_piece)
+            all_white_attacks = board_evaluation.get_all_white_attacks(current_board)
+            
+            if (black_king_coord in all_white_attacks):
 
+                if board_evaluation.opponent_has_no_legal_moves(turn, current_board):
+
+                    print(player_white + " wins!")
+                    
+                    break                
+            
+            else:
+                if win_condition.is_draw(turn, current_board):
+                    print("Draw!")
+                    
+                    break                   
+                                                
             turn = "black"
-                                   
+
         elif turn == "black":
+            
+            move = input_move_black(player_black, board_coord, turn, current_board)
+            
+            pgn_game = get_pgn_game(pgn_game, move, turn, turn_count, turn_move)
 
-            move = move_check.input_move_black(player_black, board_coord, turn, current_board)
+            with open("./game_database/current_game.json", "w") as outfile:  
+                json.dump(pgn_game, outfile)  
 
-            move = move.split(" ")
-          
-            i = find_move_coord(move[0])[0]
-            j = find_move_coord(move[0])[1]
+            # turn_move.append(move) 
 
-            current_piece = current_board[i][j].split("_")[1]
+            # pgn_game[turn_count] = turn_move       
 
-            current_board[i][j] = purge_cell(current_board[i][j])
+            current_board = board_operations.make_move(move, current_board)
 
-            x = find_move_coord(move[1])[0]
-            y = find_move_coord(move[1])[1]
+            white_king_coord = board_evaluation.get_white_king_coord(current_board)
 
-            current_board[x][y] = fill_cell(current_board[x][y], current_piece)
+            all_black_attacks = board_evaluation.get_all_black_attacks(current_board)
+            
+            if (white_king_coord in all_black_attacks):
 
-            turn = "white"    
+                if board_evaluation.opponent_has_no_legal_moves(turn, current_board):
+
+                    print(player_black + " wins!")
+                    
+                    break                
+            
+            else:
+                if win_condition.is_draw(turn, current_board): 
+                    
+                    print("Draw!")
+                    break                    
+
+            turn = "white"                 
+
+            turn_count += 1                           
+
+        show_board_status(current_board)    
         
-        count += 1
-
-        show_board_status(current_board)
-
-    return True
-
+    print(pgn_game)
+    
 standardGame() 
